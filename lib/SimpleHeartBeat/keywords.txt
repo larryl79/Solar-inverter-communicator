@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map For HeartBeat
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+HeartBeat	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+run	KEYWORD2
+ledtoggle	KEYWORD2
+ledoff	KEYWORD2
+ledon	KEYWORD2
+blink	KEYWORD2
+blinkasync	KEYWORD2
+getstate	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
