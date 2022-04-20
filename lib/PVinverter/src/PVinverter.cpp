@@ -11,7 +11,7 @@
 
 #include "PVinverter.h"
 
-void PV_INVERTER::begin(uint32_t _baudRate, char _protocol, uint8_t _verbose_begin) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
+void PV_INVERTER::begin(uint32_t _baudRate, inverter_protocol_t _protocol, uint8_t _verbose_begin) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
 {
   if (hwStream)
   {
@@ -277,7 +277,7 @@ void PV_INVERTER::store_status2 ()
   DevStatus2.dustProof			  	     = val[2] ;		// b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
 }
 
-void PV_INVERTER::inverter_console_data()
+void PV_INVERTER::console_data()
 {
   Serial.println("UNIX TIME:............ |" + String(pipVals._unixtime) + "| Epoch");
   Serial.println("Grid Voltage:......... |" + String(pipVals.gridVoltage) + "| V");
@@ -299,7 +299,7 @@ void PV_INVERTER::inverter_console_data()
   Serial.println("Batt DischargeCurrent: |" + String(pipVals.batteryDischargeCurrent) + "| A"); 
   Serial.println("DeviceStatus:......... |" + String(pipVals.deviceStatus) + "|");
   
-  if ( _inverter_protocol = 'B')   // "B" = 22 fields from QPIGS
+  if ( _inverter_protocol = B)   // "B" = 22 fields from QPIGS
   {
     Serial.println("Battery offset Fan:... |" + String(pipVals.batOffsetFan) + "| V");
     Serial.println("EEPROM Version:....... |" + String(pipVals.eepromVers) + "|");
@@ -417,7 +417,7 @@ int PV_INVERTER::inverter_receive( String cmd, String& str_return )
     
 }
 
-void PV_INVERTER::ask_inverter_QPIRI( String& _result)
+void PV_INVERTER::ask_QPIRI( String& _result)
   {
       int _funct_return = 0;
       _result = "";
@@ -434,7 +434,7 @@ void PV_INVERTER::ask_inverter_QPIRI( String& _result)
       }
   }
 
-int PV_INVERTER::ask_inverter_data(uint32_t _now)
+int PV_INVERTER::ask_data(uint32_t _now)
     {
       int _funct_return = 0;
       String _result = "";
@@ -465,7 +465,7 @@ int PV_INVERTER::ask_inverter_data(uint32_t _now)
         // TODO: Read all QPIRI fields
         
         String _QPIRI_result;
-        ask_inverter_QPIRI(_QPIRI_result);
+        ask_QPIRI(_QPIRI_result);
 
         // store QPIRI info
         store_QPIRI(_QPIRI_result);
@@ -480,7 +480,7 @@ int PV_INVERTER::ask_inverter_data(uint32_t _now)
       return (int)_funct_return;    
     }
 
-int PV_INVERTER::handle_inverter_automation(int _hour, int _min)
+int PV_INVERTER::handle_automation(int _hour, int _min)
     {
       String _resultado = "";
       uint32_t minutes = (_hour * 60) + _min ;              // Minutes to compare with preset time rules

@@ -10,15 +10,8 @@
 class PV_INVERTER
 {
 	public:
-    PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
-    PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
-
-    void begin(uint32_t _baudRate, char _protocol, uint8_t _verbose_begin); // _protocol:"A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
-                                                                            // _verbose_begin: 0 = none  / 1 = Debug 
-    void inverter_console_data();
-    int handle_inverter_automation(int _hour, int _min);
-    int ask_inverter_data(uint32_t _now);
-
+    typedef enum {A = 0, B, C, D, E } inverter_protocol_t;
+    
     String _POP_status;
 		String NAK = "\x28\x4E\x41\x4B\x73\x73";   // "(NAKss"  this message receiving on not accepted command from inverter.
 		String ACK = "\x41\x43\x4B";               // this message receiving on acknovledge of command
@@ -184,10 +177,20 @@ class PV_INVERTER
     {
       char id[16];
     };
-	
+
+	  PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
+    PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
+
+    void begin(uint32_t _baudRate, inverter_protocol_t _protocol, uint8_t _verbose_begin); // _protocol:"A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
+                                                                            // _verbose_begin: 0 = none  / 1 = Debug 
+    void console_data();
+    int handle_automation(int _hour, int _min);
+    int ask_data(uint32_t _now);
+
       
 	private:
-    char _inverter_protocol;    // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
+
+    inverter_protocol_t _inverter_protocol;    // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
     HardwareSerial* hwStream;
     SoftwareSerial* swStream;
     Stream* _streamRef;
@@ -204,7 +207,7 @@ class PV_INVERTER
     int inverter_send ( String inv_command );               //  0 = serial communication up and running
                                                             // -1 = No serial communication  // should be change to true and false
                                                            
-    void ask_inverter_QPIRI( String& _result);    
+    void ask_QPIRI( String& _result);    
 
 		int _average_count;
     uint32_t _average_oldtime;

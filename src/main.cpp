@@ -25,8 +25,8 @@
   #include <LiquidCrystal_I2C.h>
   #include <lib_lcd_helper.h>
 #endif
-#include <inverter.cpp>
-#include <LCD_scroll_menu.cpp>
+#include <PVinverter.h>
+//#include <LCD_scroll_menu.cpp>
 
 
 String swversion="0.1b";
@@ -75,7 +75,7 @@ void setup()
   //setup_rotary();
   //printLCDmenu();
   //QPIGS_lcd_base();
-  menu_setup();
+  //menu_setup();
   pinMode(heartbeat_led, OUTPUT); //set up internal hearbeat led
   digitalWrite(heartbeat_led, LOW);
 }
@@ -85,9 +85,9 @@ void loop() {
   yield();
   
   //invereter_receive();
-  menu_loop();
+  //menu_loop();
   //delay(2000);
-  
+  /*
   if (DevStatus.SCCcharge)
     {
       digitalWrite(heartbeat_led, HIGH);
@@ -96,5 +96,7 @@ void loop() {
     {
       digitalWrite(heartbeat_led, LOW);
     }
+    */
+
 }
 
