@@ -1,17 +1,15 @@
 #ifndef PV_INVERTER_H
 #define PV_INVERTER_H
 
+#include <Arduino.h>
 #include <string.h>
 #include <HardwareSerial.h>
 #include <SoftwareSerial.h>
-#include <Arduino.h>
-//#include <lib_lcd_helper.h>
 
 class PV_INVERTER
 {
-	public:
-    typedef enum {A = 0, B, C, D, E } inverter_protocol_t;
-    
+ 	public:
+        
     String _POP_status;
 		String NAK = "\x28\x4E\x41\x4B\x73\x73";   // "(NAKss"  this message receiving on not accepted command from inverter.
 		String ACK = "\x41\x43\x4B";               // this message receiving on acknovledge of command
@@ -120,7 +118,6 @@ class PV_INVERTER
       byte protocolId;
     };
 
-
     struct QmodMessage
     {
       char mode;
@@ -178,34 +175,36 @@ class PV_INVERTER
       char id[16];
     };
 
+
 	  PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
     PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
 
-    void begin(uint32_t _baudRate, inverter_protocol_t _protocol, uint8_t _verbose_begin); // _protocol:"A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
+    void begin(uint32_t _baudRate, int _inverter_protocol = 1, uint8_t _verbose_begin = 0); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 
     void console_data();
     int handle_automation(int _hour, int _min);
     int ask_data(uint32_t _now);
+    int get_protocol();
+    void set_protocol(int _protocol_no);
 
-      
-	private:
+ private:
 
-    inverter_protocol_t _inverter_protocol;    // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
     HardwareSerial* hwStream;
     SoftwareSerial* swStream;
     Stream* _streamRef;
     uint8_t _VERBOSE_MODE;
 
+    int _inverter_protocol;    // "1" = 18 fields from QPIGS / "2" = 22 fields from QPIGS 
 		void store_QPIRI(String value);
 		void store_QPIGS(String value);
     void store_status();
     void store_status2();
-    int inverter_receive( String cmd, String& str_return ); //  0 = successfull
-                                                            // -1 = No serial communication
-                                                            // -2 = Not recognized command  // error codes should be positive integers
+    int inverter_receive( String cmd, String& str_return ); // 0 = successfull
+                                                            // 1 = No serial communication
+                                                            // 2 = Not recognized command  // error codes should be positive integers
                                                             
-    int inverter_send ( String inv_command );               //  0 = serial communication up and running
-                                                            // -1 = No serial communication  // should be change to true and false
+    int inverter_send ( String inv_command );               // 0 = serial communication up and running
+                                                            // 1 = No serial communication  // should be change to true and false
                                                            
     void ask_QPIRI( String& _result);    
 
@@ -220,6 +219,8 @@ class PV_INVERTER
 		uint16_t calc_crc(char *msg, int n);
 		// ******************************************  inverter communication  *********************************
 		
+      
+	
 };
 
 #endif 

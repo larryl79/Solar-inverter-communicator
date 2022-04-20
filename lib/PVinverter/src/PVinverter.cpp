@@ -11,7 +11,7 @@
 
 #include "PVinverter.h"
 
-void PV_INVERTER::begin(uint32_t _baudRate, inverter_protocol_t _protocol, uint8_t _verbose_begin) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
+void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _verbose_begin) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
 {
   if (hwStream)
   {
@@ -29,9 +29,6 @@ void PV_INVERTER::begin(uint32_t _baudRate, inverter_protocol_t _protocol, uint8
   //--- prepare counter for smoothing reads (average)
   _average_count = 0;
 
-  //--- sets how much fields from QPIGS
-  _inverter_protocol = _protocol;
-  
   //--- For benchmarking the Solar PV_INVERTER communication ---------------
   _average_oldtime=millis();
 
@@ -170,7 +167,7 @@ void PV_INVERTER::store_QPIGS(String value)
         val = strtok(0, " "); // Get the next value
         strcpy(_pip_average.deviceStatus, val);
         
-        if ( _inverter_protocol == 'B')   // "B" = 22 fields from QPIGS
+        if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
         {
           val = strtok(0, " "); // Get the next value
           _pip_average.batOffsetFan = atoi(val);
@@ -211,7 +208,7 @@ void PV_INVERTER::store_QPIGS(String value)
         pipVals.batteryDischargeCurrent = _pip_average.batteryDischargeCurrent/10;
         strcpy(pipVals.deviceStatus,  _pip_average.deviceStatus);     // take the lastest read string
 
-        if ( _inverter_protocol == 'B')   // "B" = 22 fields from QPIGS
+        if ( _inverter_protocol == 2 )   // "B" = 22 fields from QPIGS
         {
           pipVals.PV1_chargPower          = _pip_average.PV1_chargPower/10;
           pipVals.batOffsetFan            = _pip_average.batOffsetFan;  // take the lastest read string
@@ -244,9 +241,9 @@ void PV_INVERTER::store_QPIGS(String value)
         _pip_average.batterySCC               = 0;
         _pip_average.batteryDischargeCurrent  = 0;
 
-         if ( _inverter_protocol == 'B')   // "B" = 22 fields from QPIGS
+         if ( _inverter_protocol == 2 )   // "B" = 22 fields from QPIGS
         {
-          _pip_average.PV1_chargPower           = 0;
+          _pip_average.PV1_chargPower         = 0;
         }
 
       //--- RESETs average counting -----------------------------------------------------
@@ -299,7 +296,7 @@ void PV_INVERTER::console_data()
   Serial.println("Batt DischargeCurrent: |" + String(pipVals.batteryDischargeCurrent) + "| A"); 
   Serial.println("DeviceStatus:......... |" + String(pipVals.deviceStatus) + "|");
   
-  if ( _inverter_protocol = B)   // "B" = 22 fields from QPIGS
+  if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
   {
     Serial.println("Battery offset Fan:... |" + String(pipVals.batOffsetFan) + "| V");
     Serial.println("EEPROM Version:....... |" + String(pipVals.eepromVers) + "|");
@@ -347,9 +344,9 @@ uint16_t PV_INVERTER::calc_crc(char *msg, int n)
 
 int PV_INVERTER::inverter_send(String inv_command)
 {
-	_streamRef->print("QRST\r");  //  knock-knock for communiction exist
+	_streamRef->print("QRST\x0D");  //  knock-knock for communiction exist
 	_streamRef->flush();          // Wait finishing transmitting before going on...
-	if (_streamRef->readStringUntil('\r') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
+	if (_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
 	{
  /* 		uint16_t vgCrcCheck;
   		int vRequestLen = 0;
@@ -383,7 +380,7 @@ int PV_INVERTER::inverter_send(String inv_command)
   }
   else
   {
-		return -1; // No serial communication
+		return 1; // No serial communication, error code 1
   }
    return 0; // NAKss returned, serial communication up and running
 }
@@ -398,7 +395,7 @@ int PV_INVERTER::inverter_receive( String cmd, String& str_return )
       if (str_return == "(NAKss") 
       {
         Serial.println("PV_INVERTER: " + cmd + ": Not recognized command: " + str_return);
-        return -2;   
+        return 2;   
       }
 
       // TODO: TEST for CRC receipt match with calculated CRC
@@ -412,7 +409,7 @@ int PV_INVERTER::inverter_receive( String cmd, String& str_return )
       // No serial communication
       Serial.println("PV_INVERTER: " + cmd + ": No serial communication");
       str_return = "";
-   	  return -1;
+   	  return 1;
 	  }
     
 }
@@ -429,7 +426,7 @@ void PV_INVERTER::ask_QPIRI( String& _result)
         {
           Serial.println("PV_INVERTER: QPIRI: Receipt string is not completed, size = |" + String(strlen(_result.c_str())) + "|.  Returned: " + _result);
           _result = "";                                    // clear the string result from PV_INVERTER as it is not complete
-          _funct_return = -1;                              // short string lengh for QPIRI command 
+          _funct_return = 1;                              // short string lengh for QPIRI command 
         }
       }
   }
@@ -449,7 +446,7 @@ int PV_INVERTER::ask_data(uint32_t _now)
         {
           Serial.println("PV_INVERTER: QPIGS: Receipt string is not completed, size = |" + String(strlen(_result.c_str())) + "|.  Returned: " + _result);
           _result = "";                                  // clear the string result from PV_INVERTER as it is not complete
-          _funct_return = -1;                            // short string lengh for QPIGS command 
+          _funct_return = 1;                            // short string lengh for QPIGS command 
         }
       }
       store_QPIGS(_result.c_str());                      // accumulates, average and store in pipVals the PV_INVERTER response or nothing.
@@ -479,6 +476,16 @@ int PV_INVERTER::ask_data(uint32_t _now)
       }
       return (int)_funct_return;    
     }
+
+int PV_INVERTER::get_protocol()
+  {
+    return _inverter_protocol;
+  }
+
+void PV_INVERTER::set_protocol(int _protocol_no)
+  {
+    _inverter_protocol = _protocol_no;
+  }
 
 int PV_INVERTER::handle_automation(int _hour, int _min)
     {
@@ -541,4 +548,5 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
           }
         }
       }
+      return 0;
     }

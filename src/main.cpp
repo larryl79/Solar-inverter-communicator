@@ -30,6 +30,10 @@
 
 
 String swversion="0.1b";
+int error_code = 0;
+
+PV_INVERTER inverter(Serial2);
+
 
 // ******************************************  Setup  ******************************************
 void setup()
@@ -50,15 +54,20 @@ void setup()
     }
   Serial3.flush();
   #else
+  
   Serial.println("Setup physical Serial2");
+  /*
   Serial2.begin(2400, SERIAL_8N1); //MPP-Solar inverter Baud Setting(http://www.offgrid.casa/wp-content/uploads/2017/10/HS_MS_MSX_RS232_Protocol_20140822_after_current_upgrade.pdf)
   Serial2.setTimeout(100);
     while (!Serial2)
     {
     ; // wait for Serial2 port to connect.
     }
+    */
   #endif
-  
+
+  inverter.begin(2400, 'A' , 1 /*VERBOSE_MODE */ );
+
   lcdinit();
   if ( lcdok == true )
     {
@@ -71,7 +80,7 @@ void setup()
     lcdprint("V"+String(swversion));
     }
   delay(2000);
-  lcdclear();
+  //lcdclear();
   //setup_rotary();
   //printLCDmenu();
   //QPIGS_lcd_base();
@@ -82,8 +91,23 @@ void setup()
 
 // ******************************************  Loop  ******************************************
 void loop() {
+  error_code = 0;
   yield();
   
+   error_code = inverter.ask_data(millis());
+  if (error_code != 0)                 
+  {
+    Serial.println("-- ERROR: INVERTER: Error executing 'ask_inverter_data' function! Error code:" + String(error_code));        
+  }
+
+  inverter.console_data();
+delay(1000);
+
+
+
+
+
+
   //invereter_receive();
   //menu_loop();
   //delay(2000);
