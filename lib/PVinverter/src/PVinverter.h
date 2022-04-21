@@ -70,16 +70,16 @@ class PV_INVERTER
       uint32_t batteryVoltage;          // xx.xx V   * 100
       uint32_t batteryChargeCurrent;    // xxx A
       uint32_t batteryCharge;           // %
-      uint32_t inverterTemperature;     // xxxx
+      uint32_t inverterTemperature;     // xxxx     // have to / 100.00 to get right value
       uint32_t PVCurrent;               // xx.x A    * 10
-      uint32_t PVVoltage;               // xx V
+      uint32_t PVVoltage;               // xxxx V
       uint32_t PVPower;                 // xxxx W    * 10
       uint32_t batterySCC;              // xx.xx V   * 100
       uint32_t batteryDischargeCurrent; // xxxx A
-      char deviceStatus[8];             // 8 bit binary
-      uint32_t batOffsetFan;            // Battery voltage offset for fans on  (2 numbers)
-      uint32_t eepromVers;              // EEPROM version (2 numbers)
-      uint32_t PV1_chargPower;          // PV1 Charging power (5 numbers)
+      char deviceStatus[11];            // 8 bit binary  //10 bit on protocol2
+      uint16_t batOffsetFan;            // Battery voltage offset for fans on  (2 numbers)
+      uint16_t eepromVers;              // EEPROM version (2 numbers)
+      unsigned long int PV1_chargPower; // PV1 Charging power (5 numbers)
       char deviceStatus2[4];            // Devide status 2
       uint32_t bat_backToUtilityVolts;  // Setup voltage to stop using battery and back to GRID power
       uint32_t bat_bulkChargeVolts;     // Setup voltage to 1st (elevation) and 2nd (Absorption) battery charge stages
@@ -92,26 +92,54 @@ class PV_INVERTER
 
     struct DevStatus_t 
     {
-      bool SBUpriority = 0 ;     // add SBU priority version  b7
-      bool ConfigStatus = 0 ;    // configuration status: 1: Change 0: unchanged b6
-      bool FwUpdate = 0 ;        // b5: SCC firmware version 1: Updated 0: unchanged
-      bool LoadStatus = 0 ;      // b4: Load status: 0: Load off 1:Load on
-      bool BattVoltSteady = 0 ;  // b3: battery voltage to steady while charging
-      bool Chargingstatus = 0 ;  // b2: Charging status( Charging on/off)
-      bool SCCcharge = 0 ;       // b1: Charging status( SCC charging on/off)
-      bool ACcharge = 0 ;        // b0: Charging status(AC charging on/off)
-        // b2b1b0: 000: Do nothing 
-        // 110: Charging on with SCC charge on
-        // 101: Charging on with AC charge on
-        // 111: Charging on with SCC and AC charge on
+      uint8_t changingFloatMode = 0 ;  // 10: flag for charging to floating mode
+      uint8_t SwitchOn = 0 ;           // b9: Switch On
+      uint8_t dustProof = 0 ;          // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+      uint8_t SBUpriority = 0 ;        // b7: add SBU priority version  b7
+      uint8_t ConfigStatus = 0 ;       // b6: configuration status: 1: Change 0: unchanged
+      uint8_t FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
+      uint8_t LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
+      uint8_t BattVoltSteady = 0 ;     // b3: battery voltage to steady while charging
+                                    // b2b1b0: 000: Do nothing 
+                                        // 110: Charging on with SCC charge on
+                                        // 101: Charging on with AC charge on
+                                        // 111: Charging on with SCC and AC charge on
+      uint8_t Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
+      uint8_t SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
+      uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
     } DevStatus;
 
-    struct DevStatus2_t 
+    struct QpiriVals_t  // Device Rating Information inquiry
     {
-      bool changingFloatMode = 0 ;    // 10: flag for charging to floating mode
-      bool SwitchOn = 0 ;     // b9: Switch On
-      bool dustProof = 0 ;        // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
-    } DevStatus2;
+      uint32_t BBB_B;  //Grid rating voltage 
+      uint32_t CC_C;    // Grid rating current
+      uint32_t DDD_D;   // AC output rating voltage
+      uint32_t ee_e;    // AC output rating frequency
+      uint32_t ff_f;    // AC output rating current
+      uint32_t hhhh;    // AC output rating apparent power
+      uint32_t iiii;
+      uint32_t jj_j;
+      uint32_t kk_k;
+      uint32_t ll_l; 
+      uint32_t mm_m;
+      uint32_t nn_n;
+      uint8_t o;
+      uint32_t ppp;
+      uint32_t qqq;
+      uint8_t o2;   // input voltage range
+      uint8_t p2;   // output source priority
+      uint8_t q2;   // charger source priority
+      uint8_t r;
+      uint16_t ss;
+      uint8_t t;
+      uint8_t u;
+      uint32_t vv_v;
+      uint8_t w;    // PV OK condition for parallel
+      uint8_t x;
+      uint32_t yyy;
+      uint8_t z;
+      uint8_t A1A1A1;
+    } QpiriVals;
 
     struct QpiMessage
     {
@@ -199,7 +227,6 @@ class PV_INVERTER
 		void store_QPIGS(String value);
     void store_avg_QPIGS(String value);
     void store_status();
-    void store_status2();
     int inverter_receive( String cmd, String& str_return ); // 0 = successfull
                                                             // 1 = No serial communication
                                                             // 2 = Not recognized command  // error codes should be positive integers

@@ -158,7 +158,7 @@ void PV_INVERTER::store_QPIGS(String value)
         strcpy(pipVals.deviceStatus, val);
         
         if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
-        {
+          {
           val = strtok(0, " "); // Get the next value
           pipVals.batOffsetFan = atoi(val);
         
@@ -170,13 +170,15 @@ void PV_INVERTER::store_QPIGS(String value)
         
           val = strtok(0, " "); // Get the next value
           strcpy(pipVals.deviceStatus2, String(val).substring(0,3).c_str());
-          //store_status2 ();
-        }
+
+          strncat(pipVals.deviceStatus2 ,pipVals.deviceStatus, strlen(pipVals.deviceStatus2)); // append pipvals.devstatus2 to pipvals.devstatus
+          }
+        this->store_status();
 }
 
 void PV_INVERTER::store_avg_QPIGS(String value)
 {
-  store_QPIGS(value);
+  this->store_QPIGS(value);
   if (_average_count < 10)
   {
       //--- Accumulates readings from 0 to 9 ------------------------------------------
@@ -187,7 +189,6 @@ void PV_INVERTER::store_avg_QPIGS(String value)
       }
       else
       {
-
         _pip_average.gridVoltage              += pipVals.gridVoltage;
         _pip_average.gridFrequency            += pipVals.gridFrequency;
         _pip_average.acOutput                 += pipVals.acOutput;
@@ -215,7 +216,6 @@ void PV_INVERTER::store_avg_QPIGS(String value)
           strcpy(_pip_average.deviceStatus2, pipVals.deviceStatus2);    // take the lastest read string
           
           //--- Update status2 with latest read data from PV_INVERTER ---------------------------
-          store_status2 ();
         }
    
         //--- Prepare counting for next array posotion -------------------------------
@@ -253,11 +253,10 @@ void PV_INVERTER::store_avg_QPIGS(String value)
           strcpy(pipVals.deviceStatus2, _pip_average.deviceStatus2);    // take the lastest read string
           
           //--- Update status2 with latest read data from PV_INVERTER ---------------------------
-          store_status2 ();
         }
         
         //--- Update status with latest read data from PV_INVERTER ---------------------------
-        store_status ();
+        //PV_INVERTER::store_status ();
 
         //--- RESETs the _pip_average values to not accummulate the next readings with previous ones ----
         //_pip_average*.clear();
@@ -292,63 +291,60 @@ void PV_INVERTER::store_avg_QPIGS(String value)
 
 void PV_INVERTER::store_status ()
 {
-  char val[8];
-  strcpy(val, pipVals.deviceStatus);		// get the first value
-  DevStatus.SBUpriority      = val[0];
-  DevStatus.ConfigStatus     = val[1];		// configuration status: 1: Change 0: unchanged b6
-  DevStatus.FwUpdate         = val[2];      // b5: SCC firmware version 1: Updated 0: unchanged
-  DevStatus.LoadStatus       = val[3];      // b4: Load status: 0: Load off 1:Load on
-  DevStatus.BattVoltSteady   = val[4];		// b3: battery voltage to steady while charging
-  DevStatus.Chargingstatus   = val[5];		// b2: Charging status( Charging on/off)
-  DevStatus.SCCcharge        = val[6];		// b1: Charging status( SCC charging on/off)
-  DevStatus.ACcharge         = val[7];      // b0: Charging status(AC charging on/off)
-}
-
-void PV_INVERTER::store_status2 ()
-{
-  char val[4];
-  strcpy(val, pipVals.deviceStatus2);		// get the first value
-  DevStatus2.changingFloatMode			 = val[0] ;		// 10: flag for charging to floating mode
-  DevStatus2.SwitchOn       				 = val[1] ;		// b9: Switch On
-  DevStatus2.dustProof			  	     = val[2] ;		// b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+  //char val[8];
+  //strcpy(val, pipVals.deviceStatus);		// get the first value
+  DevStatus.SBUpriority      = pipVals.deviceStatus[0];
+  DevStatus.ConfigStatus     = pipVals.deviceStatus[1];		   // configuration status: 1: Change 0: unchanged b6
+  DevStatus.FwUpdate         = pipVals.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
+  DevStatus.LoadStatus       = pipVals.deviceStatus[3];      // b4: Load status: 0: Load off 1:Load on
+  DevStatus.BattVoltSteady   = pipVals.deviceStatus[4];		// b3: battery voltage to steady while charging
+  DevStatus.Chargingstatus   = pipVals.deviceStatus[5];		// b2: Charging status( Charging on/off)
+  DevStatus.SCCcharge        = pipVals.deviceStatus[6];		// b1: Charging status( SCC charging on/off)
+  DevStatus.ACcharge         = pipVals.deviceStatus[7];      // b0: Charging status(AC charging on/off)
+  if ( _inverter_protocol == 2 )
+    {
+    DevStatus.dustProof			  	     = pipVals.deviceStatus[8] ;		// b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)  
+    DevStatus.SwitchOn       				 = pipVals.deviceStatus[9] ;		// b9: Switch On
+    DevStatus.changingFloatMode			 = pipVals.deviceStatus[10];		// b10: flag for charging to floating mode
+    }
 }
 
 void PV_INVERTER::console_data()
 {
-  Serial.println("UNIX TIME:............ |" + String(pipVals._unixtime) + "| Epoch");
-  Serial.println("Grid Voltage:......... |" + String(pipVals.gridVoltage) + "| V");
-  Serial.println("Grid Frequency:....... |" + String(pipVals.gridFrequency/10.0) + "| Hz");
-  Serial.println("AC Output:............ |" + String(pipVals.acOutput) + "| V");
-  Serial.println("AC Frequency:......... |" + String(pipVals.acFrequency/10.0) + "| Hz");
-  Serial.println("AC ApparentPower:..... |" + String(pipVals.acApparentPower) + "| VA");
-  Serial.println("AC ActivePower:....... |" + String(pipVals.acActivePower) + "| W");
-  Serial.println("Load Percent:......... |" + String(pipVals.loadPercent) + "| %");
-  Serial.println("Bus Voltage:.......... |" + String(pipVals.busVoltage) + "| V"); 
-  Serial.println("Battery Voltage:...... |" + String(pipVals.batteryVoltage/100.00)+ "| V");
-  Serial.println("Battery ChargeCurrent: |" + String(pipVals.batteryChargeCurrent) + "| A"); 
-  Serial.println("Battery Charge:....... |" + String(pipVals.batteryCharge) + "| %"); 
-  Serial.println("PV_INVERTER Temperature:. |" + String(pipVals.inverterTemperature) + "| C"); 
-  Serial.println("PV Current:........... |" + String(pipVals.PVCurrent /10.0)+ "| A");
-  Serial.println("PV Voltage:........... |" + String(pipVals.PVVoltage /10.0) + "| V"); 
-  Serial.println("PV Power:............. |" + String(pipVals.PVPower   /10.0) + "| W");  
-  Serial.println("Battery SCC:.......... |" + String(pipVals.batterySCC/100.00) + "| V"); 
-  Serial.println("Batt DischargeCurrent: |" + String(pipVals.batteryDischargeCurrent) + "| A"); 
-  Serial.println("DeviceStatus:......... |" + String(pipVals.deviceStatus) + "|");
+  Serial.println("UNIX TIME:............... " + String(pipVals._unixtime) + " Epoch");
+  Serial.println("Grid Voltage:............ " + String(pipVals.gridVoltage) + " V");
+  Serial.println("Grid Frequency:.......... " + String(pipVals.gridFrequency/10.0) + " Hz");
+  Serial.println("AC Output:............... " + String(pipVals.acOutput) + " V");
+  Serial.println("AC Frequency:............ " + String(pipVals.acFrequency/10.0) + " Hz");
+  Serial.println("AC ApparentPower:........ " + String(pipVals.acApparentPower) + " VA");
+  Serial.println("AC ActivePower:.......... " + String(pipVals.acActivePower) + " W");
+  Serial.println("Load Percent:............ " + String(pipVals.loadPercent) + " %");
+  Serial.println("Bus Voltage:............. " + String(pipVals.busVoltage) + " V"); 
+  Serial.println("Battery Voltage:......... " + String(pipVals.batteryVoltage/100.00)+ " V");
+  Serial.println("Battery ChargeCurrent:... " + String(pipVals.batteryChargeCurrent) + " A"); 
+  Serial.println("Battery Charge:.......... " + String(pipVals.batteryCharge) + " %"); 
+  Serial.println("PV_INVERTER Temperature:. " + String(pipVals.inverterTemperature /10.0) + " C"); 
+  Serial.println("PV Current:.............. " + String(pipVals.PVCurrent /10.0)+ " A");
+  Serial.println("PV Voltage:.............. " + String(pipVals.PVVoltage /10.0) + " V"); 
+  Serial.println("PV Power:................ " + String(pipVals.PVPower   /100.00) + " W");  
+  Serial.println("Battery SCC:............. " + String(pipVals.batterySCC/100.00) + " V"); 
+  Serial.println("Batt DischargeCurrent:... " + String(pipVals.batteryDischargeCurrent) + " A"); 
+  Serial.println("DeviceStatus:............ " + String(pipVals.deviceStatus));
   
   if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
   {
-    Serial.println("Battery offset Fan:... |" + String(pipVals.batOffsetFan) + "| V");
-    Serial.println("EEPROM Version:....... |" + String(pipVals.eepromVers) + "|");
-    Serial.println("PV1 Charger Power:.... |" + String(pipVals.PV1_chargPower) + "| W");
-    Serial.println("DeviceStatus2:........ |" + String(pipVals.deviceStatus2) + "|");
+    Serial.println("Battery offset Fan:.... " + String(pipVals.batOffsetFan) + " V");
+    Serial.println("EEPROM Version:........ " + String(pipVals.eepromVers));
+    Serial.println("PV1 Charger Power:..... " + String(pipVals.PV1_chargPower) + " W");
+    Serial.println("DeviceStatus2:......... " + String(pipVals.deviceStatus2));
   }
-
-  Serial.println("Bat Back to Grid:..... |" + String(pipVals.bat_backToUtilityVolts/10.0) + "| V"); 
-  Serial.println("Bat Bulk Charge:...... |" + String(pipVals.bat_bulkChargeVolts/10.0) + "| V"); 
-  Serial.println("Bat Float Charge:..... |" + String(pipVals.bat_FloatChargeVolts/10.0) + "| V"); 
-  Serial.println("Bat CutOff:........... |" + String(pipVals.bat_CutOffVolts/10.0) + "| V"); 
-  Serial.println("Output Priority:...... |" + String(pipVals.OutPutPriority) + "| 0: Utility first / 1: Solar first / 2: SBU first"); 
-  Serial.println("Charging Priority:.... |" + String(pipVals.ChargerSourcePriority) + "| 0: Utility first / 1: Solar first / 2: Solar + Utility / 3: Only solar"); 
+  // QPIRI values
+  Serial.println("Bat Back to Grid:........ " + String(pipVals.bat_backToUtilityVolts/10.0) + " V"); 
+  Serial.println("Bat Bulk Charge:......... " + String(pipVals.bat_bulkChargeVolts/10.0) + " V"); 
+  Serial.println("Bat Float Charge:........ " + String(pipVals.bat_FloatChargeVolts/10.0) + " V"); 
+  Serial.println("Bat CutOff:.............. " + String(pipVals.bat_CutOffVolts/10.0) + " V"); 
+  Serial.println("Output Priority:......... " + String(pipVals.OutPutPriority) + " | 0: Utility first / 1: Solar first / 2: SBU first"); 
+  Serial.println("Charging Priority:....... " + String(pipVals.ChargerSourcePriority) + " | 0: Utility first / 1: Solar first / 2: Solar + Utility / 3: Only solar"); 
 }
 
 // ******************************************  CRC Functions  ******************************************
@@ -528,7 +524,7 @@ void PV_INVERTER::set_protocol(int _protocol_no)
 
 int PV_INVERTER::handle_automation(int _hour, int _min)
     {
-      String _resultado = "";
+      String _result = "";
       uint32_t minutes = (_hour * 60) + _min ;              // Minutes to compare with preset time rules
       
       const uint32_t _evening_min = ( 18   * 60) +   0  ;   // 18:00hs evening start (sun stops to generating on 16:30, but 
@@ -549,7 +545,7 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
         if (_POP_status != POP01)
         {
           // Only changes the Output Priority if previous status is different
-          if (inverter_receive(POP01, _resultado) == 0)                   
+          if (inverter_receive(POP01, _result) == 0)                   
           {
              Serial.println ("--INFO: PV_INVERTER: POP01: Output Priority set to Solar/Grid/Battery");
              _POP_status = POP01;
@@ -557,7 +553,7 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
           else
           {
              // Needs to treat errors for better error messages
-             Serial.println("-- ERROR: PV_INVERTER: POP01: Failed to set Output Priority to Solar/Grid/Battery. PV_INVERTER Returned: " + _resultado);       
+             Serial.println("-- ERROR: PV_INVERTER: POP01: Failed to set Output Priority to Solar/Grid/Battery. PV_INVERTER Returned: " + _result);       
           }
         }
       }
@@ -575,7 +571,7 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
         if (_POP_status != POP02)
         {
           // Only changes the Output Priority if previous status is different
-          if (inverter_receive(POP02, _resultado) == 0)                   
+          if (inverter_receive(POP02, _result) == 0)                   
           {
              Serial.println ("--INFO: PV_INVERTER: POP02: Output Priority set to Solar/Battery/Grid");
              _POP_status = POP02;
@@ -583,7 +579,7 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
           else
           {
             // Needs to treat errors for better error messages
-             Serial.println("-- ERROR: PV_INVERTER: POP02: Failed to set Output Priority to Solar/Battery/Grid. PV_INVERTER Returned: " + _resultado);       
+             Serial.println("-- ERROR: PV_INVERTER: POP02: Failed to set Output Priority to Solar/Battery/Grid. PV_INVERTER Returned: " + _result);       
           }
         }
       }
