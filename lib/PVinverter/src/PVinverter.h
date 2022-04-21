@@ -197,6 +197,7 @@ class PV_INVERTER
     int _inverter_protocol;    // "1" = 18 fields from QPIGS / "2" = 22 fields from QPIGS 
 		void store_QPIRI(String value);
 		void store_QPIGS(String value);
+    void store_avg_QPIGS(String value);
     void store_status();
     void store_status2();
     int inverter_receive( String cmd, String& str_return ); // 0 = successfull
@@ -208,7 +209,7 @@ class PV_INVERTER
                                                            
     void ask_QPIRI( String& _result);    
 
-		int _average_count;
+		int _average_count = 0;
     uint32_t _average_oldtime;
 
     pipVals_t _pip_average;
