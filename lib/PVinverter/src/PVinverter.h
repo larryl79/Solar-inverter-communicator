@@ -109,7 +109,7 @@ class PV_INVERTER
       uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
     } DevStatus;
 
-    struct QpiriVals_t  // Device Rating Information inquiry
+    struct QpiriVals_t  // Device Rating Information inquiry  // just protocol 2 first (MAX)
     {
       uint32_t BBB_B;  //Grid rating voltage 
       uint32_t CC_C;    // Grid rating current
@@ -117,28 +117,28 @@ class PV_INVERTER
       uint32_t ee_e;    // AC output rating frequency
       uint32_t ff_f;    // AC output rating current
       uint32_t hhhh;    // AC output rating apparent power
-      uint32_t iiii;
-      uint32_t jj_j;
-      uint32_t kk_k;
-      uint32_t ll_l; 
-      uint32_t mm_m;
-      uint32_t nn_n;
-      uint8_t o;
-      uint32_t ppp;
-      uint32_t qqq;
+      uint32_t iiii;  // AC output rating active power
+      uint32_t jj_j;  // Battery rating voltage 
+      uint32_t kk_k;  // Battery re-charge voltage
+      uint32_t ll_l;  // Battery under voltage
+      uint32_t mm_m;  // Battery bulk voltage
+      uint32_t nn_n;  // Battery float voltage
+      uint8_t o;  // Battery type
+      uint32_t ppp;  // Max AC charging current
+      uint32_t qqq;  // Max charging current 
       uint8_t o2;   // input voltage range
       uint8_t p2;   // output source priority
       uint8_t q2;   // charger source priority
-      uint8_t r;
-      uint16_t ss;
-      uint8_t t;
-      uint8_t u;
-      uint32_t vv_v;
+      uint8_t r;    // parallel max num
+      uint16_t ss;  // Machine type
+      uint8_t t;    // Topology
+      uint8_t u;    // Output mode
+      uint32_t vv_v;  // Battery re-discharge voltage
       uint8_t w;    // PV OK condition for parallel
-      uint8_t x;
-      uint32_t yyy;
-      uint8_t z;
-      uint8_t A1A1A1;
+      uint8_t x;    // PV power balance
+      uint32_t yyy;  // Max. charging time at C.V stage (only 48V model)
+      uint8_t z;     // Operation Logic (only 48V model)
+      uint8_t A1A1A1;  // Max discharging current (only 48V model)
     } QpiriVals;
 
     struct QpiMessage
