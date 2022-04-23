@@ -173,7 +173,7 @@ void PV_INVERTER::store_QPIGS(String value)
 
           strncat(pipVals.deviceStatus2 ,pipVals.deviceStatus, strlen(pipVals.deviceStatus2)); // append pipvals.devstatus2 to pipvals.devstatus
           }
-        this->store_status();
+        //this->store_status();
 }
 
 void PV_INVERTER::store_avg_QPIGS(String value)
@@ -297,9 +297,9 @@ void PV_INVERTER::store_status ()
   DevStatus.ConfigStatus     = pipVals.deviceStatus[1];		   // configuration status: 1: Change 0: unchanged b6
   DevStatus.FwUpdate         = pipVals.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
   DevStatus.LoadStatus       = pipVals.deviceStatus[3];      // b4: Load status: 0: Load off 1:Load on
-  DevStatus.BattVoltSteady   = pipVals.deviceStatus[4];		// b3: battery voltage to steady while charging
-  DevStatus.Chargingstatus   = pipVals.deviceStatus[5];		// b2: Charging status( Charging on/off)
-  DevStatus.SCCcharge        = pipVals.deviceStatus[6];		// b1: Charging status( SCC charging on/off)
+  DevStatus.BattVoltSteady   = pipVals.deviceStatus[4];		   // b3: battery voltage to steady while charging
+  DevStatus.Chargingstatus   = pipVals.deviceStatus[5];		   // b2: Charging status( Charging on/off)
+  DevStatus.SCCcharge        = pipVals.deviceStatus[6];		   // b1: Charging status( SCC charging on/off)
   DevStatus.ACcharge         = pipVals.deviceStatus[7];      // b0: Charging status(AC charging on/off)
   if ( _inverter_protocol == 2 )
     {
@@ -307,6 +307,8 @@ void PV_INVERTER::store_status ()
     DevStatus.SwitchOn       				 = pipVals.deviceStatus[9] ;		// b9: Switch On
     DevStatus.changingFloatMode			 = pipVals.deviceStatus[10];		// b10: flag for charging to floating mode
     }
+    // bool DevStatus.xxxx = ( uint8_t xxx.Dev[8] == '1' )    // to convert bool?
+    
 }
 
 void PV_INVERTER::console_data()
