@@ -109,44 +109,50 @@ class PV_INVERTER
       uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
     } DevStatus;
 
-    struct QpiriVals_t  // Device Rating Information inquiry  // implementing just protocol 2 first (MAX)
+    struct QpiriVals_t  // Device Rating Information inquiry  // implementing just protocol 'no. 2' first (MAX)
     {
-      uint32_t GridRatingVoltage;  //Grid rating voltage xx.x V * 10
-      uint32_t GridRatingCurrent;    // Grid rating current xx.x A * 10
-      uint32_t DDD_D;   // AC output rating voltage xxx.x V * 10
-      uint32_t ee_e;    // AC output rating frequency xx.x Hz * 10
-      uint32_t ff_f;    // AC output rating current xx.x A * 10
-      uint32_t hhhh;    // AC output rating apparent power xxxx VA
-      uint32_t iiii;  // AC output rating active power xxxx W
-      uint32_t jj_j;  // Battery rating voltage xx.x V * 10
-      uint32_t kk_k;  // Battery re-charge voltage xx.x V * 10
-      uint32_t ll_l;  // Battery under voltage xx.x V * 10
-      uint32_t mm_m;  // Battery bulk voltage xx.x V * 10
-      uint32_t nn_n;  // Battery float voltage xx.x V * 10
-      uint8_t o;    // Battery type 0-9              0: AGM 1: Flooded 2: User 3: Pylon 5: Weco 6: Soltaro 8: Lib 9: Lic
-      uint32_t ppp;  // Max AC charging current xxx A
-      uint32_t qqq;  // Max charging current xxx A
-      uint8_t o2;   // input voltage range 0-1       0: Appliance 1: UPS
-      uint8_t p2;   // output source priority 0-2    0: UtilitySolarBat 1: SolarUtilityBat 2: SolarBatUtility
-      uint8_t q2;   // charger source priority 1-3   1: Solar first 2: Solar + Utility 3: Only solar charging permitted
-      uint8_t r;    // parallel max num 0-9
-      uint16_t ss;  // Machine type      00: Grid tie; 01: Off Grid; 10: Hybrid.
-      uint8_t t;    // Topology 0: transformerless 1: transformer
-      uint8_t u;    // Output mode 0-7            // 00: single machine output 
+      uint32_t GridRatingVoltage;           // Grid rating voltage              xx.x V * 10
+      uint32_t GridRatingCurrent;           // Grid rating current              xx.x A * 10
+      uint32_t OutputRatingVoltage;         // AC output rating                 voltage xxx.x V * 10
+      uint32_t OutputRatingFrequency;       // AC output rating                 frequency xx.x Hz * 10
+      uint32_t OutputRatingCurrent;         // AC output rating current         xx.x A * 10
+      uint32_t OutputRatingApparentPower;   // AC output rating apparent power  xxxx VA
+      uint32_t OutputRatingActivePower;     // AC output rating active power    xxxx W
+      uint32_t BatteryRatingVoltage;        // Battery rating voltage           xx.x V * 10
+      uint32_t BatteryReChargeVoltage;      // Battery re-charge voltage        xx.x V * 10
+      uint32_t BatteryUnderVoltage;         // Battery under voltage            xx.x V * 10
+      uint32_t BatteryBulkVoltage;          // Battery bulk voltage             xx.x V * 10
+      uint32_t BatteryFloatVoltage;         // Battery float voltage            xx.x V * 10
+      uint8_t  BatteryType;                 // Battery type 0-9             0: AGM 1: Flooded 2: User 3: Pylon 5: Weco 6: Soltaro 8: Lib 9: Lic
+      uint32_t MaxACChargingCurrent;        // Max AC charging current          xxx A
+      uint32_t MaxChargingCurrent;          // Max charging current             xxx A
+      uint8_t  InputVoltageRange;           // input voltage range 0-1      0: Appliance 1: UPS
+      uint8_t  OutputSourcePriority;        // output source priority 0-2   0: UtilitySolarBat 1: SolarUtilityBat 2: SolarBatUtility
+      uint8_t  ChargerSourcePriority;       // charger source priority 1-3  1: Solar first 2: Solar + Utility 3: Only solar charging permitted
+      uint8_t  ParallelMaxNum;              // parallel max num 0-9
+      uint16_t MachineType;                 // Machine type                 00: Grid tie; 01: Off Grid; 10: Hybrid.
+      uint8_t  Topology;                    // Topology                     0: transformerless 1: transformer
+      uint8_t  OutputMode;                  // Output mode 0-7
+                                                  // 00: single machine output 
                                                   // 01: parallel output 02: Phase 1 of 3 Phase output
                                                   // 03: Phase 2 of 3 Phase output
                                                   // 04: Phase 3 of 3 Phase output
                                                   // 05: Phase 1 of 2 Phase output
                                                   // 06: Phase 2 of 2 Phase output (120°)
                                                   // 07: Phase 2 of 2 Phase output (180°)
-      uint32_t vv_v;  // Battery re-discharge voltage xx.x V *10
-      uint8_t w;    // PV OK condition for parallel   // 0: As long as one unit of inverters has connect PV, parallel system willconsider PV OK;
-                                                      // 1: Only All of inverters have connect PV, parallel system will consider PV OK
-      uint8_t x;    // PV power balance     // 0: PV input max current will be the max charged current;
-                                            // 1: PV input max power will be the sum of the max charged power and loads power.
-      uint32_t yyy;  // Max. charging time at C.V stage (only 48V model)
-      uint8_t z;     // Operation Logic (only 48V model)  minute
-      uint8_t A1A1A1;  // Max discharging current (only 48V model) A
+      uint32_t BatteryReDischargeVoltage;   // Battery re-discharge voltage xx.x V *10
+      uint8_t  PV_OK_ConditionParallel;     // PV OK condition for parallel
+                                                  // 0: As long as one unit of inverters has connect PV, parallel system willconsider PV OK;
+                                                  // 1: Only All of inverters have connect PV, parallel system will consider PV OK
+      uint8_t  PV_PowerBalance;             // PV power balance
+                                                  // 0: PV input max current will be the max charged current;
+                                                  // 1: PV input max power will be the sum of the max charged power and loads power.
+      uint32_t MaxChargingTimeAtC_V_Stage;  // Max. charging time at C.V stage (only 48V model)     xxx minute
+      uint8_t  OperationLogic;              // Operation Logic (only 48V model) 0-2
+                                                  // 0: Automatically
+                                                  // 1: On-line mode
+                                                  // 2: ECO mode
+      uint8_t  MaxDischargingCurrent;       // Max discharging current (only 48V model)     xxx A
     } QpiriVals;
 
     struct QpiMessage
