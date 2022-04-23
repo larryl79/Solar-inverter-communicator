@@ -325,7 +325,7 @@ void PV_INVERTER::console_data()
   Serial.println("Battery Voltage:......... " + String(pipVals.batteryVoltage/100.00)+ " V");
   Serial.println("Battery ChargeCurrent:... " + String(pipVals.batteryChargeCurrent) + " A"); 
   Serial.println("Battery Charge:.......... " + String(pipVals.batteryCharge) + " %"); 
-  Serial.println("PV_INVERTER Temperature:. " + String(pipVals.inverterTemperature /10.0) + " C"); 
+  Serial.println("PV_INVERTER Temperature:. " + String(pipVals.inverterTemperature /10.0) + " °C"); 
   Serial.println("PV Current:.............. " + String(pipVals.PVCurrent /10.0)+ " A");
   Serial.println("PV Voltage:.............. " + String(pipVals.PVVoltage /10.0) + " V"); 
   Serial.println("PV Power:................ " + String(pipVals.PVPower   /100.00) + " W");  
