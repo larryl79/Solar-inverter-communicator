@@ -109,7 +109,7 @@ class PV_INVERTER
       uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
     } DevStatus;
 
-    struct QpiriVals_t  // Device Rating Information inquiry  // implementing just protocol 'no. 2' first (MAX)
+    struct QpiriVals_t  // Device Rating Information inquiry
     {
       uint32_t GridRatingVoltage;           // Grid rating voltage              xx.x V * 10
       uint32_t GridRatingCurrent;           // Grid rating current              xx.x A * 10
@@ -123,12 +123,12 @@ class PV_INVERTER
       uint32_t BatteryUnderVoltage;         // Battery under voltage            xx.x V * 10
       uint32_t BatteryBulkVoltage;          // Battery bulk voltage             xx.x V * 10
       uint32_t BatteryFloatVoltage;         // Battery float voltage            xx.x V * 10
-      uint8_t  BatteryType;                 // Battery type 0-9             0: AGM 1: Flooded 2: User 3: Pylon 5: Weco 6: Soltaro 8: Lib 9: Lic
-      uint32_t MaxACChargingCurrent;        // Max AC charging current          xxx A
+      uint8_t  BatteryType;                 // Battery type 0-9             0: AGM 1: Flooded 2: User 3: Pylon 5: Weco 6: Soltaro 8: Lib 9: Lic (5,6,8,9 protocol 2 )
+      uint32_t MaxAC_ChargingCurrent;        // Max AC charging current          xxx A
       uint32_t MaxChargingCurrent;          // Max charging current             xxx A
       uint8_t  InputVoltageRange;           // input voltage range 0-1      0: Appliance 1: UPS
       uint8_t  OutputSourcePriority;        // output source priority 0-2   0: UtilitySolarBat 1: SolarUtilityBat 2: SolarBatUtility
-      uint8_t  ChargerSourcePriority;       // charger source priority 1-3  1: Solar first 2: Solar + Utility 3: Only solar charging permitted
+      uint8_t  ChargerSourcePriority;       // charger source priority 0-3  0: Utility first 1: Solar first 2: Solar + Utility 3: Only solar charging permitted ( protocol 2 1-3 )
       uint8_t  ParallelMaxNum;              // parallel max num 0-9
       uint16_t MachineType;                 // Machine type                 00: Grid tie; 01: Off Grid; 10: Hybrid.
       uint8_t  Topology;                    // Topology                     0: transformerless 1: transformer
@@ -147,8 +147,8 @@ class PV_INVERTER
       uint8_t  PV_PowerBalance;             // PV power balance
                                                   // 0: PV input max current will be the max charged current;
                                                   // 1: PV input max power will be the sum of the max charged power and loads power.
-      uint32_t MaxChargingTimeAtC_V_Stage;  // Max. charging time at C.V stage (only 48V model)     xxx minute
-      uint8_t  OperationLogic;              // Operation Logic (only 48V model) 0-2
+      uint32_t MaxChargingTimeAtC_V_Stage;  // Max. charging time at C.V stage (only 48V model)     xxx minute  ( Protocol 2 only )
+      uint8_t  OperationLogic;              // Operation Logic (only 48V model) 0-2                             ( Protocol 2 only )
                                                   // 0: Automatically
                                                   // 1: On-line mode
                                                   // 2: ECO mode
@@ -202,14 +202,14 @@ class PV_INVERTER
     struct QflagMessage
     {
       bool disableBuzzer;
-      bool enableOverloadBypass;
-      bool enablePowerSaving;
-      bool enableLcdEscape;
-      bool enableOverloadRestart;
-      bool enableOvertempRestart;
-      bool enableBacklight;
-      bool enablePrimarySourceInterruptedAlarm;
-      bool enableFaultCodeRecording;
+      bool enaOverloadBypass;
+      bool enaPowerSaving;
+      bool enaLcdEscape;
+      bool enaOverloadRestart;
+      bool enaOvertempRestart;
+      bool enaBacklight;
+      bool enaPrimarySourceInterruptedAlarm;
+      bool enaFaultCodeRecor;
     };
 
     struct QidMessage
