@@ -249,11 +249,12 @@ class PV_INVERTER
                                                             // 1 = No serial communication  // should be change to true and false
                                                            
     void ask_QPIRI( String& _result);    
+    void esp_yield();
 
 		int _average_count = 0;
     uint32_t _average_oldtime;
-
     pipVals_t _pip_average;
+    
     
  		
 		// ******************************************  CRC Functions  ******************************************

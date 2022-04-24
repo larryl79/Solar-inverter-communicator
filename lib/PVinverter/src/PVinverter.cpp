@@ -36,6 +36,13 @@ void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _ver
 
 }
 
+void esp_yield()
+{
+  #if defined (ESP8266) || (defined ESP32)
+  yield();
+  #endif
+}
+
 void PV_INVERTER::store_QPIRI(String value)
 {
   if (value == "")
@@ -291,6 +298,7 @@ void PV_INVERTER::store_avg_QPIGS(String value)
 
 void PV_INVERTER::store_status ()
 {
+  this->esp_yield();
   //char val[8];
   //strcpy(val, pipVals.deviceStatus);		// get the first value
   DevStatus.SBUpriority      = pipVals.deviceStatus[0];
