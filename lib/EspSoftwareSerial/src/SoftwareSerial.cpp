@@ -34,7 +34,7 @@ inline void IRAM_ATTR SoftwareSerial::disableInterrupts()
 #ifndef ESP32
     m_savedPS = xt_rsil(15);
 #else
-    taskENTER_CRITICAL(&m_interruptsMux);
+    portENTER_CRITICAL(&m_interruptsMux);
 #endif
 }
 
@@ -43,7 +43,7 @@ inline void IRAM_ATTR SoftwareSerial::restoreInterrupts()
 #ifndef ESP32
     xt_wsr_ps(m_savedPS);
 #else
-    taskEXIT_CRITICAL(&m_interruptsMux);
+    portEXIT_CRITICAL(&m_interruptsMux);
 #endif
 }
 

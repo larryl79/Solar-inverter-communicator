@@ -41,6 +41,7 @@ void esp_yield()
   #if defined (ESP8266) || (defined ESP32)
   yield();
   #endif
+  delay(1);
 }
 
 void PV_INVERTER::store_QPIRI(String value)
@@ -301,6 +302,12 @@ void PV_INVERTER::store_status ()
   this->esp_yield();
   //char val[8];
   //strcpy(val, pipVals.deviceStatus);		// get the first value
+  /*  do with pointers
+  char *pa;
+  pa = &pipVals.deviceStatus[0];
+  DevStatus.SBUpriority = *pa;
+  DevStatus.ConfigStatus = *(pa+1);
+  */
   DevStatus.SBUpriority      = pipVals.deviceStatus[0];
   DevStatus.ConfigStatus     = pipVals.deviceStatus[1];		   // configuration status: 1: Change 0: unchanged b6
   DevStatus.FwUpdate         = pipVals.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
@@ -357,6 +364,18 @@ void PV_INVERTER::console_data()
   Serial.println("Charging Priority:....... " + String(pipVals.ChargerSourcePriority) + " | 0: Utility first / 1: Solar first / 2: Solar + Utility / 3: Only solar"); 
 }
 
+
+int PV_INVERTER::getProtocol()
+  {
+    return _inverter_protocol;
+  }
+
+void PV_INVERTER::setProtocol(int _protocol_no)
+  {
+    _inverter_protocol = _protocol_no;
+  }
+
+
 // ******************************************  CRC Functions  ******************************************
 uint16_t PV_INVERTER::crc_xmodem_update (uint16_t crc, uint8_t data)
 {
@@ -373,55 +392,98 @@ return crc;
 
 uint16_t PV_INVERTER::calc_crc(char *msg, int n)
 {
-// See bottom of this page: http://www.nongnu.org/avr-libc/user-manual/group__util__crc.html
-// Polynomial: x^16 + x^12 + x^5 + 1 (0x1021)
-// Initial value. xmodem uses 0xFFFF but this example
-// requires an initial value of zero.
-  uint16_t x = 0;
-    while( n-- ) {
-    x = crc_xmodem_update(x, (uint16_t)*msg++);
-    yield();
-    }
-      return(x);
+  uint16_t _x = 0;
+  switch ( this->getProtocol() )     // select protocol for the right CRC calculation.
+  {
+    case 1:
+    default:
+      
+      while( n-- )
+        {
+        _x = this->crc_xmodem_update( _x, (uint16_t)*msg++);
+        this->esp_yield();
+        }
+    break;
+
+    case 2:
+      this->esp_yield();
+    break;
+  }
+return( _x );
 }
 
 // ******************************************  PV_INVERTER communication  *********************************
 
-int PV_INVERTER::inverter_send(String inv_command)
+bool PV_INVERTER::rap()   //knocknock to get synced commauncation if avail
 {
-	_streamRef->print("QRST\x0D");  //  knock-knock for communiction exist
+  bool _communication = false;
+  _streamRef->print("QKnock-Knock\x0D");  //  knock-knock for communiction exist
 	_streamRef->flush();          // Wait finishing transmitting before going on...
 	if (_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
-	{
- /* 		uint16_t vgCrcCheck;
-  		int vRequestLen = 0;
-  		char s[6];
-  		int xx; 
-  		int yy;
-  
-  		vRequestLen = inv_command.length();
-  		char vRequestArray[vRequestLen]; //Arrary define
-  		inv_command.toCharArray(vRequestArray, vRequestLen + 1);
+    { _communication = true; }
+    return _communication;
+}
+
+char PV_INVERTER::read(char _cmd)   // new serail read function, no ready yet, and not tested.
+{
+  char _str_return;
+   if ( this->send(String(_cmd)) == 0 )
+    {
+      while ( _streamRef->available() > 0)
+        {
+        _str_return = _streamRef->read();
+        if ( _str_return == '\x0D' )
+          {
+            return _str_return;
+          }
+        }
+    }
+  return false;
+}
+
+
+String PV_INVERTER::addCRC(String _cmd)
+{
+  if ( !_cmd )
+      {
+     	uint16_t _vgCrcCheck;
+  		int _vInvCommandLen = 0;
+  		char _s[6];
+  		int _CRC1; 
+  		int _CRC2;
+  		_vInvCommandLen = _cmd.length();
+  		char _vInvCommandArray[_vInvCommandLen]; //Arrary define
+
+  		_cmd.toCharArray(_vInvCommandArray, _vInvCommandLen + 1);
   
   		//Calculating CRC
-  		vgCrcCheck = calc_crc(vRequestArray,vRequestLen);
-  
+      _vgCrcCheck = this->calc_crc((_vInvCommandArray),_vInvCommandLen);
+
   		// CRC returns two characters - these need to be separated and send as HEX to PV_INVERTER
-  		String vgCrcCheckString = String(vgCrcCheck, HEX);
-  		String vCrcCorrect = vgCrcCheckString.substring(0,2) + " " + vgCrcCheckString.substring(2,4);
+  		String _vgCrcCheckString = String(_vgCrcCheck, HEX);
+  		String _vCrcCorrect = _vgCrcCheckString.substring(0,2) + " " + _vgCrcCheckString.substring(2,4);
   			
   		//CRC are returned as B7A9 - need to separate them and change from ASCII to HEX
-  		vCrcCorrect.toCharArray(s, 6);
-  		sscanf(s, "%x %x", &xx, &yy);  
+  		_vCrcCorrect.toCharArray(_s, 6);
+  		sscanf(_s, "%x %x", &_CRC1, &_CRC2);  
   
-  		inv_command += char(xx);   // add CRC byte 1
-  		inv_command += char(yy);   // add CRC byte 2
- 
-*/
-      inv_command += "\x0D";     // add CR
-  		//Sending Request to PV_INVERTER
-  		_streamRef->print(inv_command);
-  		_streamRef->flush();          // Wait finishing transmitting before going on...
+  		_cmd += char(_CRC1);   // add CRC byte 1
+  		_cmd += char(_CRC2);   // add CRC byte 2    
+    }
+return _cmd;
+}
+
+
+// *********************************************    old shit have to migrate everithing to new.
+int PV_INVERTER::send(String _inv_command)
+{
+	if ( this->rap() )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
+	{
+    _inv_command += this->addCRC(_inv_command);    
+    _inv_command += "\x0D";     // add CR
+ 		//Sending Request to PV_INVERTER
+ 		_streamRef->print(_inv_command);
+ 		_streamRef->flush();          // Wait finishing transmitting before going on...
   }
   else
   {
@@ -430,9 +492,9 @@ int PV_INVERTER::inverter_send(String inv_command)
    return 0; // NAKss returned, serial communication up and running
 }
 
-int PV_INVERTER::inverter_receive( String cmd, String& str_return )
+int PV_INVERTER::receive( String cmd, String &str_return )
 {
-  if ( inverter_send(cmd)==0 )
+  if ( this->send(cmd) == 0 )
     {
       str_return = _streamRef->readStringUntil('\x0D');
       
@@ -459,11 +521,11 @@ int PV_INVERTER::inverter_receive( String cmd, String& str_return )
     
 }
 
-void PV_INVERTER::ask_QPIRI( String& _result)
+void PV_INVERTER::ask_QPIRI( String &_result)
   {
       int _funct_return = 0;
       _result = "";
-      _funct_return = inverter_receive(QPIRI, _result);
+      _funct_return = this->receive(QPIRI, _result);
       if (_funct_return == 0) 
       {
         // checking return string lengh for QPIRI command 
@@ -480,7 +542,7 @@ int PV_INVERTER::ask_data(uint32_t _now)
     {
       int _funct_return = 0;
       String _result = "";
-      _funct_return = inverter_receive(QPIGS, _result);
+      _funct_return = this->receive(QPIGS, _result);
       if (_funct_return == 0) 
       {
         if (_VERBOSE_MODE == 1)
@@ -494,7 +556,7 @@ int PV_INVERTER::ask_data(uint32_t _now)
           _funct_return = 1;                            // short string lengh for QPIGS command 
         }
       }
-      store_QPIGS(_result.c_str());                      // accumulates, average and store in pipVals the PV_INVERTER response or nothing.
+      this->store_QPIGS(_result.c_str());                      // accumulates, average and store in pipVals the PV_INVERTER response or nothing.
 
       // Ask Inverer for QPIRI configuration in the 10th QPIGS reading (0 to 9)
       // (when the averaged amount will be stored in the public variables)
@@ -507,10 +569,10 @@ int PV_INVERTER::ask_data(uint32_t _now)
         // TODO: Read all QPIRI fields
         
         String _QPIRI_result;
-        ask_QPIRI(_QPIRI_result);
+        this->ask_QPIRI(_QPIRI_result);
 
         // store QPIRI info
-        store_QPIRI(_QPIRI_result);
+        this->store_QPIRI(_QPIRI_result);
 
         //--- For benchmarking the averaged Solar PV_INVERTER communication ---------------------------      
         if (_VERBOSE_MODE == 1)
@@ -521,16 +583,6 @@ int PV_INVERTER::ask_data(uint32_t _now)
       }
       return (int)_funct_return;    
     }
-
-int PV_INVERTER::get_protocol()
-  {
-    return _inverter_protocol;
-  }
-
-void PV_INVERTER::set_protocol(int _protocol_no)
-  {
-    _inverter_protocol = _protocol_no;
-  }
 
 int PV_INVERTER::handle_automation(int _hour, int _min)
     {
@@ -555,7 +607,7 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
         if (_POP_status != POP01)
         {
           // Only changes the Output Priority if previous status is different
-          if (inverter_receive(POP01, _result) == 0)                   
+          if ( this->receive(POP01, _result) == 0)                   
           {
              Serial.println ("--INFO: PV_INVERTER: POP01: Output Priority set to Solar/Grid/Battery");
              _POP_status = POP01;
@@ -581,7 +633,7 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
         if (_POP_status != POP02)
         {
           // Only changes the Output Priority if previous status is different
-          if (inverter_receive(POP02, _result) == 0)                   
+          if ( this->receive(POP02, _result) == 0)                   
           {
              Serial.println ("--INFO: PV_INVERTER: POP02: Output Priority set to Solar/Battery/Grid");
              _POP_status = POP02;

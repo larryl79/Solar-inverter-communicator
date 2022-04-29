@@ -223,12 +223,16 @@ class PV_INVERTER
 
     void begin(uint32_t _baudRate, int _inverter_protocol = 1, uint8_t _verbose_begin = 0); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 
-    void console_data();
-    int handle_automation(int _hour, int _min);
-    int ask_data(uint32_t _now);
-    int get_protocol();
-    void set_protocol(int _protocol_no);
+    void esp_yield();  // add yield(); command to code if platform is ESP32 or ESP8266
+    int  getProtocol();                      // get protocol number
+    void setProtocol(int _protocol_no);      // set protocol number
 
+    void console_data();
+    int  handle_automation(int _hour, int _min);
+    int  ask_data(uint32_t _now);
+    
+
+/***************************************** private commands *******************************/
  private:
 
     HardwareSerial* hwStream;
@@ -241,15 +245,18 @@ class PV_INVERTER
 		void store_QPIGS(String value);
     void store_avg_QPIGS(String value);
     void store_status();
-    int inverter_receive( String cmd, String& str_return ); // 0 = successfull
+    bool rap();
+    String addCRC(String _cmd);
+    char read(char _cmd);
+
+    int receive( String cmd, String& str_return ); // 0 = successfull
                                                             // 1 = No serial communication
-                                                            // 2 = Not recognized command  // error codes should be positive integers
-                                                            
-    int inverter_send ( String inv_command );               // 0 = serial communication up and running
+                                                            // 2 = Not recognized command  // error codes should be positive integers                                                        
+    int send ( String inv_command );                        // 0 = serial communication up and running
                                                             // 1 = No serial communication  // should be change to true and false
                                                            
     void ask_QPIRI( String& _result);    
-    void esp_yield();
+    
 
 		int _average_count = 0;
     uint32_t _average_oldtime;
