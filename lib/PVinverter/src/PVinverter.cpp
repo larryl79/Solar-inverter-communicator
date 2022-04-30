@@ -36,7 +36,7 @@ void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _ver
 
 }
 
-void esp_yield()
+void PV_INVERTER::ESPyield()
 {
   #if defined (ESP8266) || (defined ESP32)
   yield();
@@ -299,7 +299,7 @@ void PV_INVERTER::store_avg_QPIGS(String value)
 
 void PV_INVERTER::store_status ()
 {
-  this->esp_yield();
+  this->ESPyield();
   //char val[8];
   //strcpy(val, pipVals.deviceStatus);		// get the first value
   /*  do with pointers
@@ -401,12 +401,12 @@ uint16_t PV_INVERTER::calc_crc(char *msg, int n)
       while( n-- )
         {
         _x = this->crc_xmodem_update( _x, (uint16_t)*msg++);
-        this->esp_yield();
+        this->ESPyield();
         }
     break;
 
     case 2:
-      this->esp_yield();
+      this->ESPyield();
     break;
   }
 return( _x );
@@ -417,14 +417,14 @@ return( _x );
 bool PV_INVERTER::rap()   //knocknock to get synced commauncation if avail
 {
   bool _communication = false;
-  _streamRef->print("QKnock-Knock\x0D");  //  knock-knock for communiction exist
-	_streamRef->flush();          // Wait finishing transmitting before going on...
-	if (_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
+  this->_streamRef->print("QKnock-Knock\x0D");  //  knock-knock for communiction exist
+	this->_streamRef->flush();          // Wait finishing transmitting before going on...
+	if (this->_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
     { _communication = true; }
     return _communication;
 }
 
-char PV_INVERTER::read(char _cmd)   // new serail read function, no ready yet, and not tested.
+char PV_INVERTER::read(char _cmd)   // new serial read function, no ready yet, and not tested.
 {
   char _str_return;
    if ( this->send(String(_cmd)) == 0 )
@@ -436,7 +436,7 @@ char PV_INVERTER::read(char _cmd)   // new serail read function, no ready yet, a
           {
             return _str_return;
           }
-        this->esp_yield();
+        this->ESPyield();
         }
     }
   return false;

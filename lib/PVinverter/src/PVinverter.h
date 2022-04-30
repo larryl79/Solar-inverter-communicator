@@ -223,7 +223,7 @@ class PV_INVERTER
 
     void begin(uint32_t _baudRate, int _inverter_protocol = 1, uint8_t _verbose_begin = 0); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 
-    void esp_yield();  // add yield(); command to code if platform is ESP32 or ESP8266
+    void ESPyield();  // add yield(); command to code if platform is ESP32 or ESP8266
     int  getProtocol();                      // get protocol number
     void setProtocol(int _protocol_no);      // set protocol number
 

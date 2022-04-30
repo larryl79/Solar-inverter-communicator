@@ -1,4 +1,5 @@
 #include <Arduino.h>
+using namespace std;
 
 // Uncomment next line and configure below if softwareserail need.
 // #define USE_SOFTWARESERIAL     //uncomment this line if you want use softwareserial e.g. lack of hw serial
@@ -76,7 +77,6 @@ void setup()
 // ******************************************  Loop  ******************************************
 void loop() {
   error_code = 0;
-  //inverter.esp_yield();
   yield();
   
    error_code = inverter.ask_data(millis());
@@ -86,7 +86,7 @@ void loop() {
   }
 
   inverter.console_data();
-  inverter.esp_yield();     // add yield(); to code if platform is ESP32 or ESP8266
+  inverter.ESPyield();     // add yield(); to code if platform is ESP32 or ESP8266
 delay(1000);
 
 
