@@ -391,29 +391,29 @@ return crc;
 
 uint16_t PV_INVERTER::calc_crc(char *msg, int n)
 {
-  uint16_t _x = 0;
+  uint16_t _CRC = 0;
   switch ( this->getProtocol() )     // select protocol for the right CRC calculation.
   {
+    case 0:  //no crc needed
+    break;
+
     case 1:   // protocol 1 CRC HPS (PowMr ) MTTP inverter
+    case 2:    // protocol 2 CRC for MAX MPPT
     default:
       
       while( n-- )
         {
-        _x = this->crc_xmodem_update( _x, (uint16_t)*msg++);
+        _CRC = this->crc_xmodem_update( _CRC, (uint16_t)*msg++);
         this->ESPyield();
         }
     break;
 
-    case 2:    // protocol 2 CRC for MAX MPPT
-
-      this->ESPyield();
-    break;
-
+    
     case 3:   // for future
     break;
 
   }
-return( _x );
+return( _CRC );
 }
 
 // ******************************************  PV_INVERTER communication  *********************************
