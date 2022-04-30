@@ -34,6 +34,8 @@ void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _ver
 
   _VERBOSE_MODE = _verbose_begin;
 
+  this->setProtocol(_inverter_protocol);
+
 }
 
 void PV_INVERTER::ESPyield()
@@ -41,7 +43,6 @@ void PV_INVERTER::ESPyield()
   #if defined (ESP8266) || (defined ESP32)
   yield();
   #endif
-  delay(1);
 }
 
 void PV_INVERTER::store_QPIRI(String value)

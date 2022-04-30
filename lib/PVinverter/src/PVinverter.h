@@ -225,7 +225,7 @@ class PV_INVERTER
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 
     void ESPyield();  // add yield(); command to code if platform is ESP32 or ESP8266
     int  getProtocol();                      // get protocol number
-    void setProtocol(int _protocol_no);      // set protocol number
+    void setProtocol(int _protocol_no);      // set protocol number  (ovverides PV_INVERTER::begin) //0 no CRC add, 1 HPS, 2 MAX
 
     void console_data();
     int  handle_automation(int _hour, int _min);
