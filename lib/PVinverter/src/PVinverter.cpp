@@ -436,6 +436,7 @@ char PV_INVERTER::read(char _cmd)   // new serail read function, no ready yet, a
           {
             return _str_return;
           }
+        this->esp_yield();
         }
     }
   return false;
