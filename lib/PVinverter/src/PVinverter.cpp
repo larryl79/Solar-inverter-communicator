@@ -296,8 +296,7 @@ void PV_INVERTER::store_avg_QPIGS(String value)
   }
 }
 
-
-void PV_INVERTER::store_status ()
+void PV_INVERTER::store_status ()   // this need investigate why causes reboot on ESP32
 {
   this->ESPyield();
   //char val[8];
@@ -383,9 +382,9 @@ uint16_t PV_INVERTER::crc_xmodem_update (uint16_t crc, uint8_t data)
   crc = crc ^ ((uint16_t)data << 8);
   for (i=0; i<8; i++) {
   if (crc & 0x8000)
-    crc = (crc << 1) ^ 0x1021; //(polynomial = 0x1021)
+    { crc = (crc << 1) ^ 0x1021; } //(polynomial = 0x1021) 
   else
-    crc <<= 1;
+    { crc <<= 1; } 
    }
 return crc;
 }
@@ -395,7 +394,7 @@ uint16_t PV_INVERTER::calc_crc(char *msg, int n)
   uint16_t _x = 0;
   switch ( this->getProtocol() )     // select protocol for the right CRC calculation.
   {
-    case 1:
+    case 1:   // protocol 1 CRC HPS (PowMr ) MTTP inverter
     default:
       
       while( n-- )
@@ -405,9 +404,14 @@ uint16_t PV_INVERTER::calc_crc(char *msg, int n)
         }
     break;
 
-    case 2:
+    case 2:    // protocol 2 CRC for MAX MPPT
+
       this->ESPyield();
     break;
+
+    case 3:   // for future
+    break;
+
   }
 return( _x );
 }
@@ -421,7 +425,7 @@ bool PV_INVERTER::rap()   //knocknock to get synced commauncation if avail
 	this->_streamRef->flush();          // Wait finishing transmitting before going on...
 	if (this->_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
     { _communication = true; }
-    return _communication;
+    return _communication; // true if ok, false for no communication.
 }
 
 char PV_INVERTER::read(char _cmd)   // new serial read function, no ready yet, and not tested.
@@ -476,11 +480,14 @@ return _cmd;
 
 
 // *********************************************    old shit have to migrate everithing to new.
-int PV_INVERTER::send(String _inv_command)
+int PV_INVERTER::send(String _inv_command, bool _CRChardcoded)
 {
 	if ( this->rap() )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
 	{
-    _inv_command += this->addCRC(_inv_command);    
+    if (!_CRChardcoded)
+      {
+        _inv_command += this->addCRC(_inv_command);   // add CRC sting to the command by protocol number
+      }
     _inv_command += "\x0D";     // add CR
  		//Sending Request to PV_INVERTER
  		_streamRef->print(_inv_command);

@@ -1,8 +1,7 @@
 #include <Arduino.h>
-using namespace std;
 
 // Uncomment next line and configure below if softwareserail need.
-// #define USE_SOFTWARESERIAL     //uncomment this line if you want use softwareserial e.g. lack of hw serial
+// #define USE_SOFTWARESERIAL     //uncomment this line if you want define softwareserial e.g. lack of hw serial
 #ifdef USE_SOFTWARESERIAL
   #include <SoftwareSerial.h>
   // 16 RX, 17 TX for ESP-32 doit v1 using physical Serial2 with software.
