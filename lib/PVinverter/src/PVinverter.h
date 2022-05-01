@@ -273,21 +273,14 @@ class PV_INVERTER
                                                             // 1 = No serial communication  // should be change to true and false
                                                            
     void ask_QPIRI( String& _result, bool _CRChardcoded);    
-    
 
-    int _average_count = 0;
+  int _average_count = 0;
     uint32_t _average_oldtime;
     pipVals_t _QPIGS_tempAverage;
-    
-    
-    
-    // ******************************************  CRC Functions  ******************************************
-    uint16_t crc_xmodem_update (uint16_t crc, uint8_t data);
-    uint16_t calc_crc(char *msg, int n);
-    // ******************************************  inverter communication  *********************************
-    
-      
-  
+ 
+	uint16_t crc_xmodem_update (uint16_t crc, uint8_t data);
+		uint16_t calc_crc(char *msg, int n);
+		// ******************************************  inverter communication  *********************************
 };
 
 #endif 
