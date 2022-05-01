@@ -254,7 +254,6 @@ class PV_INVERTER
                                                             // 2 = Not recognized command  // error codes should be positive integers                                                        
     int send ( String inv_command, bool _CRChardcoded = false );       // 0 = serial communication up and running
                                                             // 1 = No serial communication  // should be change to true and false
-                                                           
     void ask_QPIRI( String& _result);    
     
 
@@ -262,15 +261,10 @@ class PV_INVERTER
     uint32_t _average_oldtime;
     pipVals_t _pip_average;
     
-    
- 		
-		// ******************************************  CRC Functions  ******************************************
+    // ******************************************  CRC Functions  ******************************************
 		uint16_t crc_xmodem_update (uint16_t crc, uint8_t data);
 		uint16_t calc_crc(char *msg, int n);
 		// ******************************************  inverter communication  *********************************
-		
-      
-	
 };
 
 #endif 
