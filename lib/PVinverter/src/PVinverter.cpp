@@ -36,6 +36,11 @@ void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _ver
 
   this->setProtocol(_inverter_protocol);
 
+  // Initialize the pipvals and QPIGS_average with zeros (before first read)
+  this->clear_pipvals(QPIGS_values);
+  this->clear_pipvals(QPIGS_average);
+
+
 }
 
 void PV_INVERTER::ESPyield()
@@ -50,12 +55,12 @@ void PV_INVERTER::store_QPIRI(String value)
   if (value == "")
   {
     //--- QPIGS without data, skip this reading and wait next one -----------------  
-    pipVals.bat_backToUtilityVolts = 0;
-    pipVals.bat_bulkChargeVolts    = 0;
-    pipVals.bat_FloatChargeVolts   = 0;
-    pipVals.bat_CutOffVolts        = 0;
-    pipVals.OutPutPriority         = 0;
-    pipVals.ChargerSourcePriority  = 0;  
+    QPIGS_values.bat_backToUtilityVolts = 0;
+    QPIGS_values.bat_bulkChargeVolts    = 0;
+    QPIGS_values.bat_FloatChargeVolts   = 0;
+    QPIGS_values.bat_CutOffVolts        = 0;
+    QPIGS_values.OutPutPriority         = 0;
+    QPIGS_values.ChargerSourcePriority  = 0;  
   }
   else
   {
@@ -75,21 +80,21 @@ void PV_INVERTER::store_QPIRI(String value)
     val = strtok(0, " ");                               // discart the 7th value
     val = strtok(0, " ");                               // discart the 8th value
     val = strtok(0, " ");                               // 9th value -> backToUtilityVolts
-    pipVals.bat_backToUtilityVolts = atof(val) * 10 ;
+    QPIGS_values.bat_backToUtilityVolts = atof(val) * 10 ;
     val = strtok(0, " ");                               // 10th value -> bat_CutOffVolts
-    pipVals.bat_CutOffVolts = atof(val) * 10 ;
+    QPIGS_values.bat_CutOffVolts = atof(val) * 10 ;
     val = strtok(0, " ");                               // 11th value -> bat_bulkChargeVolts
-    pipVals.bat_bulkChargeVolts = atof(val) * 10 ;
+    QPIGS_values.bat_bulkChargeVolts = atof(val) * 10 ;
     val = strtok(0, " ");                               // 12th value -> bat_FloatChargeVolts
-    pipVals.bat_FloatChargeVolts = atof(val) * 10 ;
+    QPIGS_values.bat_FloatChargeVolts = atof(val) * 10 ;
     val = strtok(0, " ");                               // discart the 13th value
     val = strtok(0, " ");                               // discart the 14th value
     val = strtok(0, " ");                               // discart the 15th value
     val = strtok(0, " ");                               // discart the 16th value
     val = strtok(0, " ");                               // 17th value -> OutPutPriority 
-    pipVals.OutPutPriority  = atoi(val);
+    QPIGS_values.OutPutPriority  = atoi(val);
     val = strtok(0, " ");                               // 18th value -> ChargerSourcePriority
-    pipVals.ChargerSourcePriority  = atoi(val);   
+    QPIGS_values.ChargerSourcePriority  = atoi(val);   
 
    // ignore the other QPIRI fields
     
@@ -97,9 +102,21 @@ void PV_INVERTER::store_QPIRI(String value)
 
 }
 
-void PV_INVERTER::store_QPIGS(String value)
+void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
 {
-         //--- Update status with data from PV_INVERTER  ---------------------------------  
+
+  if (value=="")
+  {
+        // Clear pipvals in case of an incomplete or no reading
+     this->clear_pipvals(QPIGS_values);
+        
+  } else {
+    
+        // Sets provided unixtime as argument for the QPIGS_values
+        QPIGS_values._unixtime = _now;
+ 
+  
+        //--- Update status with data read from inverter serial communication ---------------------------------  
         char pipInputBuf[500];
         char *val;
         
@@ -109,259 +126,292 @@ void PV_INVERTER::store_QPIGS(String value)
         val = strtok((char *) pipInputBuf, " "); // get the first value
        if (atof(val + 1) >10)   // aviod false value stored, because it shows 2-3V even if grid isn't connected.
          {
-            pipVals.gridVoltage = atoi(val + 1);  // Skip the initial '('
+            QPIGS_values.gridVoltage = atoi(val + 1);  // Skip the initial '('
          }
          else
          {
-            pipVals.gridVoltage = 0;
+            QPIGS_values.gridVoltage = 0;
          }
       
         val = strtok(0, " "); // Get the next value
-        pipVals.gridFrequency = atof(val) * 10 ;
+        QPIGS_values.gridFrequency = atof(val) * 10 ;
       
         val = strtok(0, " "); // Get the next value
-        pipVals.acOutput = atoi(val);
+        QPIGS_values.acOutput = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.acFrequency = atof(val) * 10;
+        QPIGS_values.acFrequency = atof(val) * 10;
       
         val = strtok(0, " "); // Get the next value
-        pipVals.acApparentPower = atoi(val);
+        QPIGS_values.acApparentPower = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.acActivePower = atoi(val);
+        QPIGS_values.acActivePower = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.loadPercent = atoi(val);
+        QPIGS_values.loadPercent = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.busVoltage = atoi(val);
+        QPIGS_values.busVoltage = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.batteryVoltage = atof(val)*100;
+        QPIGS_values.batteryVoltage = atof(val)*100;
       
         val = strtok(0, " "); // Get the next value
-        pipVals.batteryChargeCurrent = atoi(val);
+        QPIGS_values.batteryChargeCurrent = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.batteryCharge = atoi(val);
+        QPIGS_values.batteryCharge = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.inverterTemperature = atoi(val);
+        QPIGS_values.inverterTemperature = atoi(val);
       
         val = strtok(0, " "); // Get the next value
-        pipVals.PVCurrent = atof(val)*10;
+        QPIGS_values.PVCurrent = atof(val)*10;
       
         val = strtok(0, " "); // Get the next value
-        pipVals.PVVoltage = atof(val)*10;
+        QPIGS_values.PVVoltage = atof(val)*10;
       
-        pipVals.PVPower = pipVals.PVVoltage * pipVals.PVCurrent; // Calculate PV Power
-      
-        val = strtok(0, " "); // Get the next value
-        pipVals.batterySCC = atof(val)*100;
+        QPIGS_values.PVPower = QPIGS_values.PVVoltage * QPIGS_values.PVCurrent; // Calculate PV Power
       
         val = strtok(0, " "); // Get the next value
-        pipVals.batteryDischargeCurrent = atoi(val);
+        QPIGS_values.batterySCC = atof(val)*100;
       
         val = strtok(0, " "); // Get the next value
-        strcpy(pipVals.deviceStatus, val);
+        QPIGS_values.batteryDischargeCurrent = atoi(val);
+      
+        val = strtok(0, " "); // Get the next value
+        char ds_temp[9];
+        strcpy(ds_temp, val);
+        QPIGS_values.deviceStatus[0] = (int)ds_temp[0]; 
+        QPIGS_values.deviceStatus[1] = (int)ds_temp[1]; 
+        QPIGS_values.deviceStatus[2] = (int)ds_temp[2]; 
+        QPIGS_values.deviceStatus[3] = (int)ds_temp[3]; 
+        QPIGS_values.deviceStatus[4] = (int)ds_temp[4]; 
+        QPIGS_values.deviceStatus[5] = (int)ds_temp[5]; 
+        QPIGS_values.deviceStatus[6] = (int)ds_temp[6]; 
+        QPIGS_values.deviceStatus[7] = (int)ds_temp[7]; 
         
-        if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
-          {
-          val = strtok(0, " "); // Get the next value
-          pipVals.batOffsetFan = atoi(val);
-        
-          val = strtok(0, " "); // Get the next value
-          pipVals.eepromVers = atoi(val);
-        
-          val = strtok(0, " "); // Get the next value
-          pipVals.PV1_chargPower = atoi(val);
-        
-          val = strtok(0, " "); // Get the next value
-          strcpy(pipVals.deviceStatus2, String(val).substring(0,3).c_str());
-
-          strncat(pipVals.deviceStatus2 ,pipVals.deviceStatus, strlen(pipVals.deviceStatus2)); // append pipvals.devstatus2 to pipvals.devstatus
-          }
-        //this->store_status();
-}
-
-void PV_INVERTER::store_avg_QPIGS(String value)
-{
-  this->store_QPIGS(value);
-  if (_average_count < 10)
-  {
-      //--- Accumulates readings from 0 to 9 ------------------------------------------
-      if (value == "")
-      {
-        //--- QPIGS without data, skip this reading and wait next one -----------------  
-         _average_count--;  
-      }
-      else
-      {
-        _pip_average.gridVoltage              += pipVals.gridVoltage;
-        _pip_average.gridFrequency            += pipVals.gridFrequency;
-        _pip_average.acOutput                 += pipVals.acOutput;
-        _pip_average.acFrequency              += pipVals.acFrequency;
-        _pip_average.acApparentPower          += pipVals.acApparentPower;
-        _pip_average.acActivePower            += pipVals.acActivePower;
-        _pip_average.loadPercent              += pipVals.loadPercent;
-        _pip_average.busVoltage               += pipVals.busVoltage;
-        _pip_average.batteryVoltage           += pipVals.batteryVoltage;
-        _pip_average.batteryChargeCurrent     += pipVals.batteryChargeCurrent;
-        _pip_average.batteryCharge            += pipVals.batteryCharge;
-        _pip_average.inverterTemperature      += pipVals.inverterTemperature;
-        _pip_average.PVCurrent                += pipVals.PVCurrent;
-        _pip_average.PVVoltage                += pipVals.PVVoltage;
-        _pip_average.PVPower                  += pipVals.PVPower;
-        _pip_average.batterySCC               += pipVals.batterySCC;
-        _pip_average.batteryDischargeCurrent  += pipVals.batteryDischargeCurrent;
-        strcpy(_pip_average.deviceStatus, pipVals.deviceStatus);     // take the lastest read string
-
         if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
         {
-          _pip_average.PV1_chargPower     += pipVals.PV1_chargPower;
-          _pip_average.batOffsetFan       = pipVals.batOffsetFan;       // take the lastest read string
-          _pip_average.eepromVers         = pipVals.eepromVers;         // take the lastest read string
-          strcpy(_pip_average.deviceStatus2, pipVals.deviceStatus2);    // take the lastest read string
-          
-          //--- Update status2 with latest read data from PV_INVERTER ---------------------------
+          val = strtok(0, " "); // Get the next value
+          QPIGS_values.batOffsetFan = atoi(val);
+        
+          val = strtok(0, " "); // Get the next value
+          QPIGS_values.eepromVers = atoi(val);
+        
+          val = strtok(0, " "); // Get the next value
+          QPIGS_values.PV1_chargPower = atoi(val);
+        
+          val = strtok(0, " "); // Get the next value
+          strcpy(ds_temp, String(val).substring(0,3).c_str());
+          QPIGS_values.deviceStatus2[0] = (int)ds_temp[0]; 
+          QPIGS_values.deviceStatus2[1] = (int)ds_temp[1]; 
+          QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]; 
+
         }
-   
-        //--- Prepare counting for next array posotion -------------------------------
-        _average_count++;
-      }
+        //this->store_status();
+  }
+}
+
+//--- When _average_count is from 0 to 9, this function Accumulates direct readings from pipVals into _QPIGS_tempAverage structure;
+//--- When _average_count is = 9, additionally it averages the accumulated readings and updates the public QPIGS_average structure with the smoothed values
+void PV_INVERTER::smoothing_QPIGS()
+{
+  if ((this->QPIGS_values.gridVoltage == 0) && (this->QPIGS_values.acOutput == 0) && (this->QPIGS_values.batteryVoltage == 0) && (this->QPIGS_values.PVVoltage == 0))
+  {
+    //--- QPIGS without data, skip this reading and wait next one -----------------  
+     _average_count--;  
   }
   else
   {
-      //--- 10 = calculate average amounts to populate pipvals variables ---------------
+    // Accumulaets readings on temp structure
+    _QPIGS_tempAverage._unixtime                 =  QPIGS_values._unixtime;         // take the lastest read string only
+    _QPIGS_tempAverage.gridVoltage              += QPIGS_values.gridVoltage;
+    _QPIGS_tempAverage.gridFrequency            += QPIGS_values.gridFrequency;
+    _QPIGS_tempAverage.acOutput                 += QPIGS_values.acOutput;
+    _QPIGS_tempAverage.acFrequency              += QPIGS_values.acFrequency;
+    _QPIGS_tempAverage.acApparentPower          += QPIGS_values.acApparentPower;
+    _QPIGS_tempAverage.acActivePower            += QPIGS_values.acActivePower;
+    _QPIGS_tempAverage.loadPercent              += QPIGS_values.loadPercent;
+    _QPIGS_tempAverage.busVoltage               += QPIGS_values.busVoltage;
+    _QPIGS_tempAverage.batteryVoltage           += QPIGS_values.batteryVoltage;
+    _QPIGS_tempAverage.batteryChargeCurrent     += QPIGS_values.batteryChargeCurrent;
+    _QPIGS_tempAverage.batteryCharge            += QPIGS_values.batteryCharge;
+    _QPIGS_tempAverage.inverterTemperature      += QPIGS_values.inverterTemperature;
+    _QPIGS_tempAverage.PVCurrent                += QPIGS_values.PVCurrent;
+    _QPIGS_tempAverage.PVVoltage                += QPIGS_values.PVVoltage;
+    _QPIGS_tempAverage.PVPower                  += QPIGS_values.PVPower;
+    _QPIGS_tempAverage.batterySCC               += QPIGS_values.batterySCC;
+    _QPIGS_tempAverage.batteryDischargeCurrent  += QPIGS_values.batteryDischargeCurrent;
+    for(int i=0; i<8; i++)  _QPIGS_tempAverage.deviceStatus[i]=QPIGS_values.deviceStatus[i];  // take the lastest read string only
+    
+    if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
+    {
+      _QPIGS_tempAverage.PV1_chargPower         += QPIGS_values.PV1_chargPower;
+      _QPIGS_tempAverage.batOffsetFan           = QPIGS_values.batOffsetFan;       // take the lastest read string only
+      _QPIGS_tempAverage.eepromVers             = QPIGS_values.eepromVers;         // take the lastest read string only
+      for(int i=0; i<3; i++)  _QPIGS_tempAverage.deviceStatus2[i]=QPIGS_values.deviceStatus2[i];  // take the lastest read string only
+    }
 
-        pipVals.gridVoltage             = _pip_average.gridVoltage/10;
-        pipVals.gridFrequency           = _pip_average.gridFrequency/10 ;
-        pipVals.acOutput                = _pip_average.acOutput/10;
-        pipVals.acFrequency             = _pip_average.acFrequency/10;
-        pipVals.acApparentPower         = _pip_average.acApparentPower/10;
-        pipVals.acActivePower           = _pip_average.acActivePower/10;
-        pipVals.loadPercent             = _pip_average.loadPercent/10;
-        pipVals.busVoltage              = _pip_average.busVoltage/10;
-        pipVals.batteryVoltage          = _pip_average.batteryVoltage/10;
-        pipVals.batteryChargeCurrent    = _pip_average.batteryChargeCurrent/10;
-        pipVals.batteryCharge           = _pip_average.batteryCharge/10;
-        pipVals.inverterTemperature     = _pip_average.inverterTemperature/10;
-        pipVals.PVCurrent               = _pip_average.PVCurrent/10;
-        pipVals.PVVoltage               = _pip_average.PVVoltage/10;
-        pipVals.PVPower                 = _pip_average.PVPower/10;
-        pipVals.batterySCC              = _pip_average.batterySCC /10;
-        pipVals.batteryDischargeCurrent = _pip_average.batteryDischargeCurrent/10;
-        strcpy(pipVals.deviceStatus,  _pip_average.deviceStatus);     // take the lastest read string
-
-        if ( _inverter_protocol == 2 )   // "B" = 22 fields from QPIGS
+    //--- when _average_count = 9: calculate average amounts to update QPIGS_average structure ---------------
+    if(_average_count == 9)
+    {
+        QPIGS_average._unixtime               = _QPIGS_tempAverage._unixtime;         // take the lastest read string only
+        QPIGS_average.gridVoltage             = _QPIGS_tempAverage.gridVoltage/10;
+        QPIGS_average.gridFrequency           = _QPIGS_tempAverage.gridFrequency/10 ;
+        QPIGS_average.acOutput                = _QPIGS_tempAverage.acOutput/10;
+        QPIGS_average.acFrequency             = _QPIGS_tempAverage.acFrequency/10;
+        QPIGS_average.acApparentPower         = _QPIGS_tempAverage.acApparentPower/10;
+        QPIGS_average.acActivePower           = _QPIGS_tempAverage.acActivePower/10;
+        QPIGS_average.loadPercent             = _QPIGS_tempAverage.loadPercent/10;
+        QPIGS_average.busVoltage              = _QPIGS_tempAverage.busVoltage/10;
+        QPIGS_average.batteryVoltage          = _QPIGS_tempAverage.batteryVoltage/10;
+        QPIGS_average.batteryChargeCurrent    = _QPIGS_tempAverage.batteryChargeCurrent/10;
+        QPIGS_average.batteryCharge           = _QPIGS_tempAverage.batteryCharge/10;
+        QPIGS_average.inverterTemperature     = _QPIGS_tempAverage.inverterTemperature/10;
+        QPIGS_average.PVCurrent               = _QPIGS_tempAverage.PVCurrent/10;
+        QPIGS_average.PVVoltage               = _QPIGS_tempAverage.PVVoltage/10;
+        QPIGS_average.PVPower                 = _QPIGS_tempAverage.PVPower/10;
+        QPIGS_average.batterySCC              = _QPIGS_tempAverage.batterySCC /10;
+        QPIGS_average.batteryDischargeCurrent = _QPIGS_tempAverage.batteryDischargeCurrent/10;
+        for(int i=0; i<8; i++)  QPIGS_average.deviceStatus[i]=_QPIGS_tempAverage.deviceStatus[i];  // take the lastest read string only
+        if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
         {
-          pipVals.PV1_chargPower          = _pip_average.PV1_chargPower/10;
-          pipVals.batOffsetFan            = _pip_average.batOffsetFan;  // take the lastest read string
-          pipVals.eepromVers              = _pip_average.eepromVers;    // take the lastest read string
-          strcpy(pipVals.deviceStatus2, _pip_average.deviceStatus2);    // take the lastest read string
-          
-          //--- Update status2 with latest read data from PV_INVERTER ---------------------------
-        }
-        
-        //--- Update status with latest read data from PV_INVERTER ---------------------------
-        //PV_INVERTER::store_status ();
-
-        //--- RESETs the _pip_average values to not accummulate the next readings with previous ones ----
-        //_pip_average*.clear();
-        _pip_average.gridVoltage              = 0;
-        _pip_average.gridFrequency            = 0;
-        _pip_average.acOutput                 = 0;
-        _pip_average.acFrequency              = 0;
-        _pip_average.acApparentPower          = 0;
-        _pip_average.acActivePower            = 0;
-        _pip_average.loadPercent              = 0;
-        _pip_average.busVoltage               = 0;
-        _pip_average.batteryVoltage           = 0;
-        _pip_average.batteryChargeCurrent     = 0;
-        _pip_average.batteryCharge            = 0;
-        _pip_average.inverterTemperature      = 0;
-        _pip_average.PVCurrent                = 0;
-        _pip_average.PVVoltage                = 0;
-        _pip_average.PVPower                  = 0;
-        _pip_average.batterySCC               = 0;
-        _pip_average.batteryDischargeCurrent  = 0;
-
-         if ( _inverter_protocol == 2 )   // "B" = 22 fields from QPIGS
-        {
-          _pip_average.PV1_chargPower         = 0;
+          QPIGS_average.PV1_chargPower          = _QPIGS_tempAverage.PV1_chargPower/10;
+          QPIGS_average.batOffsetFan            = _QPIGS_tempAverage.batOffsetFan;  // take the lastest read string
+          QPIGS_average.eepromVers              = _QPIGS_tempAverage.eepromVers;    // take the lastest read string
+          for(int i=0; i<3; i++)  _QPIGS_tempAverage.deviceStatus2[i]=QPIGS_average.deviceStatus2[i];  // take the lastest read string only
         }
 
-      //--- RESETs average counting -----------------------------------------------------
-      _average_count = 0;  
+        //--- RESETs the _QPIGS_tempAverage values to not accummulate the next 10 readings with previous ones ----
+        this->clear_pipvals(_QPIGS_tempAverage);
+
+        //--- RESETs average counting -----------------------------------------------------
+        _average_count = 0;  
+    }
+    else
+    {
+      //--- Prepare counting for next array posotion -------------------------------
+      _average_count++;
+    }
   }
+}
+
+void PV_INVERTER::clear_pipvals (pipVals_t &_thisPIP)
+{
+    _thisPIP.gridVoltage              = 0;
+    _thisPIP.gridFrequency            = 0;
+    _thisPIP.acOutput                 = 0;
+    _thisPIP.acFrequency              = 0;
+    _thisPIP.acApparentPower          = 0;
+    _thisPIP.acActivePower            = 0;
+    _thisPIP.loadPercent              = 0;
+    _thisPIP.busVoltage               = 0;
+    _thisPIP.batteryVoltage           = 0;
+    _thisPIP.batteryChargeCurrent     = 0;
+    _thisPIP.batteryCharge            = 0;
+    _thisPIP.inverterTemperature      = 0;
+    _thisPIP.PVCurrent                = 0;
+    _thisPIP.PVVoltage                = 0;
+    _thisPIP.PVPower                  = 0;
+    _thisPIP.batterySCC               = 0;
+    _thisPIP.batteryDischargeCurrent  = 0;
+    _thisPIP.deviceStatus[0]          = 0;
+    _thisPIP.deviceStatus[1]          = 0;
+    _thisPIP.deviceStatus[2]          = 0;
+    _thisPIP.deviceStatus[3]          = 0;
+    _thisPIP.deviceStatus[4]          = 0;
+    _thisPIP.deviceStatus[5]          = 0;
+    _thisPIP.deviceStatus[6]          = 0;
+    _thisPIP.deviceStatus[7]          = 0;
+
+     if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
+    {
+      _thisPIP.PV1_chargPower          = 0;
+      _thisPIP.batOffsetFan            = 0;  
+      _thisPIP.eepromVers              = 0;    
+      _thisPIP.PV1_chargPower          = 0;
+      _thisPIP.deviceStatus2[0]        = 0;
+      _thisPIP.deviceStatus2[1]        = 0;
+      _thisPIP.deviceStatus2[2]        = 0;
+    }
 }
 
 void PV_INVERTER::store_status ()   // this need investigate why causes reboot on ESP32
 {
   this->ESPyield();
   //char val[8];
-  //strcpy(val, pipVals.deviceStatus);		// get the first value
+  //strcpy(val, QPIGS_values.deviceStatus);    // get the first value
   /*  do with pointers
   char *pa;
-  pa = &pipVals.deviceStatus[0];
+  pa = &QPIGS_values.deviceStatus[0];
   DevStatus.SBUpriority = *pa;
   DevStatus.ConfigStatus = *(pa+1);
   */
-  DevStatus.SBUpriority      = pipVals.deviceStatus[0];
-  DevStatus.ConfigStatus     = pipVals.deviceStatus[1];		   // configuration status: 1: Change 0: unchanged b6
-  DevStatus.FwUpdate         = pipVals.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
-  DevStatus.LoadStatus       = pipVals.deviceStatus[3];      // b4: Load status: 0: Load off 1:Load on
-  DevStatus.BattVoltSteady   = pipVals.deviceStatus[4];		   // b3: battery voltage to steady while charging
-  DevStatus.Chargingstatus   = pipVals.deviceStatus[5];		   // b2: Charging status( Charging on/off)
-  DevStatus.SCCcharge        = pipVals.deviceStatus[6];		   // b1: Charging status( SCC charging on/off)
-  DevStatus.ACcharge         = pipVals.deviceStatus[7];      // b0: Charging status(AC charging on/off)
+  DevStatus.SBUpriority      = QPIGS_values.deviceStatus[0];
+  DevStatus.ConfigStatus     = QPIGS_values.deviceStatus[1];      // configuration status: 1: Change 0: unchanged b6
+  DevStatus.FwUpdate         = QPIGS_values.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
+  DevStatus.LoadStatus       = QPIGS_values.deviceStatus[3];      // b4: Load status: 0: Load off 1:Load on
+  DevStatus.BattVoltSteady   = QPIGS_values.deviceStatus[4];      // b3: battery voltage to steady while charging
+  DevStatus.Chargingstatus   = QPIGS_values.deviceStatus[5];      // b2: Charging status( Charging on/off)
+  DevStatus.SCCcharge        = QPIGS_values.deviceStatus[6];      // b1: Charging status( SCC charging on/off)
+  DevStatus.ACcharge         = QPIGS_values.deviceStatus[7];      // b0: Charging status(AC charging on/off)
   if ( _inverter_protocol == 2 )
     {
-    DevStatus.dustProof			  	     = pipVals.deviceStatus[8] ;		// b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)  
-    DevStatus.SwitchOn       				 = pipVals.deviceStatus[9] ;		// b9: Switch On
-    DevStatus.changingFloatMode			 = pipVals.deviceStatus[10];		// b10: flag for charging to floating mode
+    DevStatus.dustProof              = QPIGS_values.deviceStatus[8] ;    // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)  
+    DevStatus.SwitchOn               = QPIGS_values.deviceStatus[9] ;    // b9: Switch On
+    DevStatus.changingFloatMode      = QPIGS_values.deviceStatus[10];    // b10: flag for charging to floating mode
     }
     // bool DevStatus.xxxx = ( uint8_t xxx.Dev[8] == '1' )    // to convert bool?
     
 }
 
-void PV_INVERTER::console_data()
+void PV_INVERTER::console_data(pipVals_t _thisPIP)
 {
-  Serial.println("UNIX TIME:............... " + String(pipVals._unixtime) + " Epoch");
-  Serial.println("Grid Voltage:............ " + String(pipVals.gridVoltage) + " V");
-  Serial.println("Grid Frequency:.......... " + String(pipVals.gridFrequency/10.0) + " Hz");
-  Serial.println("AC Output:............... " + String(pipVals.acOutput) + " V");
-  Serial.println("AC Frequency:............ " + String(pipVals.acFrequency/10.0) + " Hz");
-  Serial.println("AC ApparentPower:........ " + String(pipVals.acApparentPower) + " VA");
-  Serial.println("AC ActivePower:.......... " + String(pipVals.acActivePower) + " W");
-  Serial.println("Load Percent:............ " + String(pipVals.loadPercent) + " %");
-  Serial.println("Bus Voltage:............. " + String(pipVals.busVoltage) + " V"); 
-  Serial.println("Battery Voltage:......... " + String(pipVals.batteryVoltage/100.00)+ " V");
-  Serial.println("Battery ChargeCurrent:... " + String(pipVals.batteryChargeCurrent) + " A"); 
-  Serial.println("Battery Charge:.......... " + String(pipVals.batteryCharge) + " %"); 
-  Serial.println("PV_INVERTER Temperature:. " + String(pipVals.inverterTemperature /10.0) + " °C"); 
-  Serial.println("PV Current:.............. " + String(pipVals.PVCurrent /10.0)+ " A");
-  Serial.println("PV Voltage:.............. " + String(pipVals.PVVoltage /10.0) + " V"); 
-  Serial.println("PV Power:................ " + String(pipVals.PVPower   /100.00) + " W");  
-  Serial.println("Battery SCC:............. " + String(pipVals.batterySCC/100.00) + " V"); 
-  Serial.println("Batt DischargeCurrent:... " + String(pipVals.batteryDischargeCurrent) + " A"); 
-  Serial.println("DeviceStatus:............ " + String(pipVals.deviceStatus));
+  Serial.println("UNIX TIME:............... " + String(_thisPIP._unixtime) + " Epoch");
+  Serial.println("Grid Voltage:............ " + String(_thisPIP.gridVoltage) + " V");
+  Serial.println("Grid Frequency:.......... " + String(_thisPIP.gridFrequency/10.0) + " Hz");
+  Serial.println("AC Output:............... " + String(_thisPIP.acOutput) + " V");
+  Serial.println("AC Frequency:............ " + String(_thisPIP.acFrequency/10.0) + " Hz");
+  Serial.println("AC ApparentPower:........ " + String(_thisPIP.acApparentPower) + " VA");
+  Serial.println("AC ActivePower:.......... " + String(_thisPIP.acActivePower) + " W");
+  Serial.println("Load Percent:............ " + String(_thisPIP.loadPercent) + " %");
+  Serial.println("Bus Voltage:............. " + String(_thisPIP.busVoltage) + " V"); 
+  Serial.println("Battery Voltage:......... " + String(_thisPIP.batteryVoltage/100.00)+ " V");
+  Serial.println("Battery ChargeCurrent:... " + String(_thisPIP.batteryChargeCurrent) + " A"); 
+  Serial.println("Battery Charge:.......... " + String(_thisPIP.batteryCharge) + " %"); 
+  Serial.println("PV_INVERTER Temperature:. " + String(_thisPIP.inverterTemperature /10.0) + " °C"); 
+  Serial.println("PV Current:.............. " + String(_thisPIP.PVCurrent /10.0)+ " A");
+  Serial.println("PV Voltage:.............. " + String(_thisPIP.PVVoltage /10.0) + " V"); 
+  Serial.println("PV Power:................ " + String(_thisPIP.PVPower   /100.00) + " W");  
+  Serial.println("Battery SCC:............. " + String(_thisPIP.batterySCC/100.00) + " V"); 
+  Serial.println("Batt DischargeCurrent:... " + String(_thisPIP.batteryDischargeCurrent) + " A"); 
+  Serial.println("DeviceStatus bit 0:...... " + String(_thisPIP.deviceStatus[0]));
+  Serial.println("DeviceStatus bit 1:...... " + String(_thisPIP.deviceStatus[1]));
+  Serial.println("DeviceStatus bit 2:...... " + String(_thisPIP.deviceStatus[2]));
+  Serial.println("DeviceStatus bit 3:...... " + String(_thisPIP.deviceStatus[3]));
+  Serial.println("DeviceStatus bit 4:...... " + String(_thisPIP.deviceStatus[4]));
+  Serial.println("DeviceStatus bit 5:...... " + String(_thisPIP.deviceStatus[5]));
+  Serial.println("DeviceStatus bit 6:...... " + String(_thisPIP.deviceStatus[6]));
+  Serial.println("DeviceStatus bit 7:...... " + String(_thisPIP.deviceStatus[7]));
   
   if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
   {
-    Serial.println("Battery offset Fan:.... " + String(pipVals.batOffsetFan) + " V");
-    Serial.println("EEPROM Version:........ " + String(pipVals.eepromVers));
-    Serial.println("PV1 Charger Power:..... " + String(pipVals.PV1_chargPower) + " W");
-    Serial.println("DeviceStatus2:......... " + String(pipVals.deviceStatus2));
+    Serial.println("Battery offset Fan:.... " + String(_thisPIP.batOffsetFan) + " V");
+    Serial.println("EEPROM Version:........ " + String(_thisPIP.eepromVers));
+    Serial.println("PV1 Charger Power:..... " + String(_thisPIP.PV1_chargPower) + " W");
+    Serial.println("DeviceStatus2 bit 0:... " + String(_thisPIP.deviceStatus2[0]));
+    Serial.println("DeviceStatus2 bit 1:... " + String(_thisPIP.deviceStatus2[1]));
+    Serial.println("DeviceStatus2 bit 2:... " + String(_thisPIP.deviceStatus2[2]));
   }
   // QPIRI values
-  Serial.println("Bat Back to Grid:........ " + String(pipVals.bat_backToUtilityVolts/10.0) + " V"); 
-  Serial.println("Bat Bulk Charge:......... " + String(pipVals.bat_bulkChargeVolts/10.0) + " V"); 
-  Serial.println("Bat Float Charge:........ " + String(pipVals.bat_FloatChargeVolts/10.0) + " V"); 
-  Serial.println("Bat CutOff:.............. " + String(pipVals.bat_CutOffVolts/10.0) + " V"); 
-  Serial.println("Output Priority:......... " + String(pipVals.OutPutPriority) + " | 0: Utility first / 1: Solar first / 2: SBU first"); 
-  Serial.println("Charging Priority:....... " + String(pipVals.ChargerSourcePriority) + " | 0: Utility first / 1: Solar first / 2: Solar + Utility / 3: Only solar"); 
+  Serial.println("Bat Back to Grid:........ " + String(_thisPIP.bat_backToUtilityVolts/10.0) + " V"); 
+  Serial.println("Bat Bulk Charge:......... " + String(_thisPIP.bat_bulkChargeVolts/10.0) + " V"); 
+  Serial.println("Bat Float Charge:........ " + String(_thisPIP.bat_FloatChargeVolts/10.0) + " V"); 
+  Serial.println("Bat CutOff:.............. " + String(_thisPIP.bat_CutOffVolts/10.0) + " V"); 
+  Serial.println("Output Priority:......... " + String(_thisPIP.OutPutPriority) + " | 0: Utility first / 1: Solar first / 2: SBU first"); 
+  Serial.println("Charging Priority:....... " + String(_thisPIP.ChargerSourcePriority) + " | 0: Utility first / 1: Solar first / 2: Solar + Utility / 3: Only solar"); 
 }
 
 
@@ -423,8 +473,8 @@ bool PV_INVERTER::rap()   //knocknock to get synced commauncation if avail
 {
   bool _communication = false;
   this->_streamRef->print("QKnock-Knock\x0D");  //  knock-knock for communiction exist
-	this->_streamRef->flush();          // Wait finishing transmitting before going on...
-	if (this->_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
+  this->_streamRef->flush();          // Wait finishing transmitting before going on...
+  if (this->_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
     { _communication = true; }
     return _communication; // true if ok, false for no communication.
 }
@@ -452,58 +502,58 @@ String PV_INVERTER::addCRC(String _cmd)
 {
   if ( !_cmd )
       {
-     	uint16_t _vgCrcCheck;
-  		int _vInvCommandLen = 0;
-  		char _s[6];
-  		int _CRC1; 
-  		int _CRC2;
-  		_vInvCommandLen = _cmd.length();
-  		char _vInvCommandArray[_vInvCommandLen]; //Arrary define
+      uint16_t _vgCrcCheck;
+      int _vInvCommandLen = 0;
+      char _s[6];
+      int _CRC1; 
+      int _CRC2;
+      _vInvCommandLen = _cmd.length();
+      char _vInvCommandArray[_vInvCommandLen]; //Arrary define
 
-  		_cmd.toCharArray(_vInvCommandArray, _vInvCommandLen + 1);
+      _cmd.toCharArray(_vInvCommandArray, _vInvCommandLen + 1);
   
-  		//Calculating CRC
+      //Calculating CRC
       _vgCrcCheck = this->calc_crc((_vInvCommandArray),_vInvCommandLen);
 
-  		// CRC returns two characters - these need to be separated and send as HEX to PV_INVERTER
-  		String _vgCrcCheckString = String(_vgCrcCheck, HEX);
-  		String _vCrcCorrect = _vgCrcCheckString.substring(0,2) + " " + _vgCrcCheckString.substring(2,4);
-  			
-  		//CRC are returned as B7A9 - need to separate them and change from ASCII to HEX
-  		_vCrcCorrect.toCharArray(_s, 6);
-  		sscanf(_s, "%x %x", &_CRC1, &_CRC2);  
+      // CRC returns two characters - these need to be separated and send as HEX to PV_INVERTER
+      String _vgCrcCheckString = String(_vgCrcCheck, HEX);
+      String _vCrcCorrect = _vgCrcCheckString.substring(0,2) + " " + _vgCrcCheckString.substring(2,4);
+        
+      //CRC are returned as B7A9 - need to separate them and change from ASCII to HEX
+      _vCrcCorrect.toCharArray(_s, 6);
+      sscanf(_s, "%x %x", &_CRC1, &_CRC2);  
   
-  		_cmd += char(_CRC1);   // add CRC byte 1
-  		_cmd += char(_CRC2);   // add CRC byte 2    
+      _cmd += char(_CRC1);   // add CRC byte 1
+      _cmd += char(_CRC2);   // add CRC byte 2    
     }
 return _cmd;
 }
 
 
-// *********************************************    old shit have to migrate everithing to new.
+
 int PV_INVERTER::send(String _inv_command, bool _CRChardcoded)
 {
-	if ( this->rap() )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
-	{
+  if ( this->rap() )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
+  {
     if (!_CRChardcoded)
       {
         _inv_command += this->addCRC(_inv_command);   // add CRC sting to the command by protocol number
       }
     _inv_command += "\x0D";     // add CR
- 		//Sending Request to PV_INVERTER
- 		_streamRef->print(_inv_command);
- 		_streamRef->flush();          // Wait finishing transmitting before going on...
+    //Sending Request to PV_INVERTER
+    _streamRef->print(_inv_command);
+    _streamRef->flush();          // Wait finishing transmitting before going on...
   }
   else
   {
-		return 1; // No serial communication, error code 1
+    return 1; // No serial communication, error code 1
   }
    return 0; // NAKss returned, serial communication up and running
 }
 
-int PV_INVERTER::receive( String cmd, String &str_return )
+int PV_INVERTER::receive( String cmd, String &str_return,  bool _CRChardcoded )
 {
-  if ( this->send(cmd) == 0 )
+  if ( this->send(cmd, _CRChardcoded) == 0 )
     {
       str_return = _streamRef->readStringUntil('\x0D');
       
@@ -525,16 +575,26 @@ int PV_INVERTER::receive( String cmd, String &str_return )
       // No serial communication
       Serial.println("PV_INVERTER: " + cmd + ": No serial communication");
       str_return = "";
-   	  return 1;
-	  }
+      return 1;
+    }
     
 }
 
-void PV_INVERTER::ask_QPIRI( String &_result)
+void PV_INVERTER::ask_QPIRI( String &_result, bool _CRChardcoded)
   {
       int _funct_return = 0;
       _result = "";
-      _funct_return = this->receive(QPIRI, _result);
+      
+      //workaround for diff CRC then calculated. Check a better way to do it later
+      if (_CRChardcoded)
+      {
+        _funct_return = this->receive(QPIRICRC, _result, _CRChardcoded);
+      }
+      else
+      {
+        _funct_return = this->receive(QPIRI, _result, _CRChardcoded);
+      }
+      
       if (_funct_return == 0) 
       {
         // checking return string lengh for QPIRI command 
@@ -547,11 +607,20 @@ void PV_INVERTER::ask_QPIRI( String &_result)
       }
   }
 
-int PV_INVERTER::ask_data(uint32_t _now)
+int PV_INVERTER::ask_data(uint32_t _now,  bool _CRChardcoded)
     {
       int _funct_return = 0;
       String _result = "";
-      _funct_return = this->receive(QPIGS, _result);
+      
+      //workaround for diff CRC then calculated. Check a better way to do it later
+      if (_CRChardcoded)
+      {
+        _funct_return = this->receive(QPIGSCRC, _result, _CRChardcoded);
+      }
+      else
+      {
+        _funct_return = this->receive(QPIGS, _result, _CRChardcoded);
+      } 
       if (_funct_return == 0) 
       {
         if (_VERBOSE_MODE == 1)
@@ -561,40 +630,43 @@ int PV_INVERTER::ask_data(uint32_t _now)
         if (strlen(_result.c_str()) < 85)       
         {
           Serial.println("PV_INVERTER: QPIGS: Receipt string is not completed, size = |" + String(strlen(_result.c_str())) + "|.  Returned: " + _result);
-          _result = "";                                  // clear the string result from PV_INVERTER as it is not complete
+          _result = "";                                 // clear the string result from PV_INVERTER as it is not complete
           _funct_return = 1;                            // short string lengh for QPIGS command 
         }
-      }
-      this->store_QPIGS(_result.c_str());                      // accumulates, average and store in pipVals the PV_INVERTER response or nothing.
 
-      // Ask Inverer for QPIRI configuration in the 10th QPIGS reading (0 to 9)
-      // (when the averaged amount will be stored in the public variables)
-      if (_average_count == 9)
-      {
-        // Sets provided unixtime as argument for the calculated averaged 10 readings
-        pipVals._unixtime = _now;
+        this->store_QPIGS(_result.c_str(), _now);               // Updates with direct reading from inverter
+        this->smoothing_QPIGS();                          // accumulates, average and updates QPIGS_average.
         
-        // Reads QPIRI command to check battery configurations
-        // TODO: Read all QPIRI fields
+        // Ask Inverer for QPIRI configuration in the 10th QPIGS reading (0 to 9)
+        // (when the averaged amount will be stored in the public variables)
+        if (_average_count == 9)
+        {
         
-        String _QPIRI_result;
-        this->ask_QPIRI(_QPIRI_result);
-
-        // store QPIRI info
-        this->store_QPIRI(_QPIRI_result);
-
-        //--- For benchmarking the averaged Solar PV_INVERTER communication ---------------------------      
-        if (_VERBOSE_MODE == 1)
-          Serial.println ("Time to read, acummulate and average QPIGS info: " + String((millis() - _average_oldtime)));
-
-        // prepare for a new banchmarck
-        _average_oldtime = millis();
+          // Reads QPIRI command to check battery configurations
+          // TODO: Read all QPIRI fields
+          
+          String _QPIRI_result;
+          this->ask_QPIRI(_QPIRI_result, _CRChardcoded);
+  
+          // store QPIRI info
+          this->store_QPIRI(_QPIRI_result);
+  
+          //--- For benchmarking the averaged Solar PV_INVERTER communication ---------------------------      
+          if (_VERBOSE_MODE == 1)
+            Serial.println ("Time to read, acummulate and average QPIGS info: " + String((millis() - _average_oldtime)));
+  
+          // prepare for a new banchmarck
+          _average_oldtime = millis();
+        }
+        Serial.println("QPIGS_values-----------------------------------------------------------------------");
+        if (_VERBOSE_MODE == 1) this->console_data(QPIGS_values); 
       }
       return (int)_funct_return;    
     }
 
-int PV_INVERTER::handle_automation(int _hour, int _min)
+int PV_INVERTER::handle_automation(int _hour, int _min,  bool _CRChardcoded)
     {
+      int _funct_return = 0;
       String _result = "";
       uint32_t minutes = (_hour * 60) + _min ;              // Minutes to compare with preset time rules
       
@@ -616,7 +688,16 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
         if (_POP_status != POP01)
         {
           // Only changes the Output Priority if previous status is different
-          if ( this->receive(POP01, _result) == 0)                   
+          
+          if (_CRChardcoded)
+          {
+            _funct_return = this->receive(POP01CRC, _result, _CRChardcoded);
+          }
+          else
+          {
+            _funct_return = this->receive(POP01, _result, _CRChardcoded);
+          }
+          if ( _funct_return == 0)                   
           {
              Serial.println ("--INFO: PV_INVERTER: POP01: Output Priority set to Solar/Grid/Battery");
              _POP_status = POP01;
@@ -642,7 +723,16 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
         if (_POP_status != POP02)
         {
           // Only changes the Output Priority if previous status is different
-          if ( this->receive(POP02, _result) == 0)                   
+          if (_CRChardcoded)
+          {
+            _funct_return = this->receive(POP02CRC, _result, _CRChardcoded);
+          }
+          else
+          {
+            _funct_return = this->receive(POP02, _result, _CRChardcoded);
+          }          
+          
+          if ( _funct_return == 0)                   
           {
              Serial.println ("--INFO: PV_INVERTER: POP02: Output Priority set to Solar/Battery/Grid");
              _POP_status = POP02;
@@ -654,5 +744,5 @@ int PV_INVERTER::handle_automation(int _hour, int _min)
           }
         }
       }
-      return 0;
+      return _funct_return;
     }
