@@ -1,10 +1,21 @@
 #ifndef PVINVERTER_H
 #define PVINVERTER_H
 
-#include <Arduino.h>
-#include <string.h>
-#include <HardwareSerial.h>
-#include <SoftwareSerial.h>
+#ifndef ARDUINO_H
+  #include <Arduino.h>
+#endif 
+
+#ifndef STRING_H
+  #include <string.h>
+#endif
+
+#ifndef HARDWARESERIAL_H
+  #include <HardwareSerial.h>
+#endif
+
+#ifndef SOFTWARESERIAL_H
+  #include <SoftwareSerial.h>
+#endif
 
 class PV_INVERTER
 {
@@ -104,10 +115,10 @@ class PV_INVERTER
       uint8_t FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
       uint8_t LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
       uint8_t BattVoltSteady = 0 ;     // b3: battery voltage to steady while charging
-                                    // b2b1b0: 000: Do nothing 
-                                        // 110: Charging on with SCC charge on
-                                        // 101: Charging on with AC charge on
-                                        // 111: Charging on with SCC and AC charge on
+                                       // b2b1b0: 000: Do nothing 
+                                                  // 110: Charging on with SCC charge on
+                                                  // 101: Charging on with AC charge on
+                                                  // 111: Charging on with SCC and AC charge on
       uint8_t Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
       uint8_t SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
       uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)

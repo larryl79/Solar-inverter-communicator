@@ -183,14 +183,14 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         val = strtok(0, " "); // Get the next value
         char ds_temp[9];
         strcpy(ds_temp, val);
-        QPIGS_values.deviceStatus[0] = (int)ds_temp[0]; 
-        QPIGS_values.deviceStatus[1] = (int)ds_temp[1]; 
-        QPIGS_values.deviceStatus[2] = (int)ds_temp[2]; 
-        QPIGS_values.deviceStatus[3] = (int)ds_temp[3]; 
-        QPIGS_values.deviceStatus[4] = (int)ds_temp[4]; 
-        QPIGS_values.deviceStatus[5] = (int)ds_temp[5]; 
-        QPIGS_values.deviceStatus[6] = (int)ds_temp[6]; 
-        QPIGS_values.deviceStatus[7] = (int)ds_temp[7]; 
+        QPIGS_values.deviceStatus[0] = (int)ds_temp[0]-'0'; 
+        QPIGS_values.deviceStatus[1] = (int)ds_temp[1]-'0'; 
+        QPIGS_values.deviceStatus[2] = (int)ds_temp[2]-'0'; 
+        QPIGS_values.deviceStatus[3] = (int)ds_temp[3]-'0'; 
+        QPIGS_values.deviceStatus[4] = (int)ds_temp[4]-'0'; 
+        QPIGS_values.deviceStatus[5] = (int)ds_temp[5]-'0'; 
+        QPIGS_values.deviceStatus[6] = (int)ds_temp[6]-'0'; 
+        QPIGS_values.deviceStatus[7] = (int)ds_temp[7]-'0'; 
         
         if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
         {
@@ -205,12 +205,12 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         
           val = strtok(0, " "); // Get the next value
           strcpy(ds_temp, String(val).substring(0,3).c_str());
-          QPIGS_values.deviceStatus2[0] = (int)ds_temp[0]; 
-          QPIGS_values.deviceStatus2[1] = (int)ds_temp[1]; 
-          QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]; 
+          QPIGS_values.deviceStatus2[0] = (int)ds_temp[0]-'0'; 
+          QPIGS_values.deviceStatus2[1] = (int)ds_temp[1]-'0'; 
+          QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]-'0'; 
 
         }
-        //this->store_status();
+        this->store_status();
   }
 }
 
@@ -336,19 +336,13 @@ void PV_INVERTER::clear_pipvals (pipVals_t &_thisPIP)
       _thisPIP.deviceStatus2[1]        = 0;
       _thisPIP.deviceStatus2[2]        = 0;
     }
+    this->store_status();
+
 }
 
 void PV_INVERTER::store_status ()   // this need investigate why causes reboot on ESP32
 {
   this->ESPyield();
-  //char val[8];
-  //strcpy(val, QPIGS_values.deviceStatus);    // get the first value
-  /*  do with pointers
-  char *pa;
-  pa = &QPIGS_values.deviceStatus[0];
-  DevStatus.SBUpriority = *pa;
-  DevStatus.ConfigStatus = *(pa+1);
-  */
   DevStatus.SBUpriority      = QPIGS_values.deviceStatus[0];
   DevStatus.ConfigStatus     = QPIGS_values.deviceStatus[1];      // configuration status: 1: Change 0: unchanged b6
   DevStatus.FwUpdate         = QPIGS_values.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
@@ -359,11 +353,10 @@ void PV_INVERTER::store_status ()   // this need investigate why causes reboot o
   DevStatus.ACcharge         = QPIGS_values.deviceStatus[7];      // b0: Charging status(AC charging on/off)
   if ( _inverter_protocol == 2 )
     {
-    DevStatus.dustProof              = QPIGS_values.deviceStatus[8] ;    // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)  
-    DevStatus.SwitchOn               = QPIGS_values.deviceStatus[9] ;    // b9: Switch On
-    DevStatus.changingFloatMode      = QPIGS_values.deviceStatus[10];    // b10: flag for charging to floating mode
+      DevStatus.dustProof              = QPIGS_values.deviceStatus[8] ;    // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)  
+      DevStatus.SwitchOn               = QPIGS_values.deviceStatus[9] ;    // b9: Switch On
+      DevStatus.changingFloatMode      = QPIGS_values.deviceStatus[10];    // b10: flag for charging to floating mode
     }
-    // bool DevStatus.xxxx = ( uint8_t xxx.Dev[8] == '1' )    // to convert bool?
     
 }
 
