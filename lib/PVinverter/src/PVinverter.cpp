@@ -645,16 +645,15 @@ int PV_INVERTER::ask_data(uint32_t _now,  bool _CRChardcoded)
           this->store_QPIRI(_QPIRI_result);
   
           //--- For benchmarking the averaged Solar PV_INVERTER communication ---------------------------      
-          if (_VERBOSE_MODE == 1)
+          if (_VERBOSE_MODE == 2)
             Serial.println ("Time to read, acummulate and average QPIGS info: " + String((millis() - _average_oldtime)));
   
           // prepare for a new banchmarck
           _average_oldtime = millis();
         }
-        Serial.println("QPIGS_values-----------------------------------------------------------------------");
-        if (_VERBOSE_MODE == 1) this->console_data(QPIGS_values); 
+        //if (_VERBOSE_MODE == 1) this->console_data(QPIGS_values); 
       }
-      return (int)_funct_return;    
+      return _funct_return;    
     }
 
 int PV_INVERTER::handle_automation(int _hour, int _min,  bool _CRChardcoded)
