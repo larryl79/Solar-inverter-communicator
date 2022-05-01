@@ -1,0 +1,245 @@
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body {
+      min-width: 310px;
+    	max-width: 800px;
+    	height: 400px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>ESP Inverter</h2>
+  <div id="chart-PVPower" class="container"></div>
+  <div id="chart-ActivePower" class="container"></div>
+  <div id="chart-BatVoltage" class="container"></div>
+  <div id="chart-BatCharge" class="container"></div>
+  <div id="chart-BatDischarge" class="container"></div>
+</body>
+<script>
+
+/////////////////////////////////////////////////////////////////////
+///// chart-PVPower /////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+var chartT = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-PVPower' },
+  title: { text: 'Generated Solar Power' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: true,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a', lineWidth: 3 } 
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Watts (W)' }
+  },
+  credits: { enabled: false }
+});
+
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartT.series[0].data.length > 96) {
+        chartT.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartT.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/PVPower", true);
+  xhttp.send();
+}, 7000 ) ;
+
+/////////////////////////////////////////////////////////////////////
+///// chart-ActivePower /////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+var chartH = new Highcharts.Chart({
+  chart:{ renderTo:'chart-ActivePower' },
+  title: { text: 'Active Power Consumption' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Load (Watts)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartH.series[0].data.length > 96) {
+        chartH.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartH.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/ActivePower", true);
+  xhttp.send();
+}, 7000 ) ;
+
+/////////////////////////////////////////////////////////////////////
+///// chart-BatVoltage /////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+var chartP = new Highcharts.Chart({
+  chart:{ renderTo:'chart-BatVoltage' },
+  title: { text: 'Battery Bank Voltage' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#18009c', lineWidth: 3}
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Voltage (V)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartP.series[0].data.length > 96) {
+        chartP.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartP.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/BatVoltage", true);
+  xhttp.send();
+}, 7000 ) ;
+
+/////////////////////////////////////////////////////////////////////
+///// chart-BatCharge /////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+var chartX = new Highcharts.Chart({
+  chart:{ renderTo:'chart-BatCharge' },
+  title: { text: 'Battery Charging Current' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#18009c', lineWidth: 3 }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Current (A)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartX.series[0].data.length > 96) {
+        chartX.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartX.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/BatCharge", true);
+  xhttp.send();
+}, 7000 ) ;
+
+///
+// chart-BatDischarge
+
+var chartY = new Highcharts.Chart({
+  chart:{ renderTo:'chart-BatDischarge' },
+  title: { text: 'Battery Discharge Current' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#18009c', lineWidth: 3 }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Current (A)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartY.series[0].data.length > 96) {
+        chartY.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartY.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/BatDischarge", true);
+  xhttp.send();
+}, 7000 ) ;
+
+</script>
+</html>
