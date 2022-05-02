@@ -52,7 +52,7 @@ void setup()
     */
   #endif
 
-  inverter.begin(2400, 'A' , 1 /*VERBOSE_MODE */ );
+  inverter.begin(2400, 100, 'A' , 1 /*VERBOSE_MODE */ );
 
   
   /* if ( lcdok == true )
@@ -83,8 +83,8 @@ void loop() {
   {
     Serial.println("-- ERROR: INVERTER: Error executing 'ask_inverter_data' function! Error code:" + String(error_code));        
   }
-
-  inverter.console_data();
+  
+  inverter.console_data(inverter.QPIGS_values);
   inverter.ESPyield();     // add yield(); to code if platform is ESP32 or ESP8266
 delay(1000);
 
