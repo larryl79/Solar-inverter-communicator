@@ -52,7 +52,7 @@ void setup()
     */
   #endif
 
-  inverter.begin(2400, 100, 'A' , 1 /*VERBOSE_MODE */ );
+  inverter.begin(2400, 'A' , 1 /*VERBOSE_MODE */ );
 
   
   /* if ( lcdok == true )

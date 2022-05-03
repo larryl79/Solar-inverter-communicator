@@ -11,7 +11,7 @@
 
 #include "PVinverter.h"
 
-void PV_INVERTER::begin(uint32_t _baudRate, int _timeout ,int _inverter_protocol, uint8_t _verbose_begin) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
+void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _verbose_begin, int _timeout ) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
 {
   if (hwStream)
   {

@@ -238,7 +238,7 @@ class PV_INVERTER
     PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
     PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
 
-    void begin(uint32_t _baudRate, int _timeout, int _inverter_protocol = 1, uint8_t _verbose_begin = 0); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
+    void begin(uint32_t _baudRate, int _inverter_protocol = 1, uint8_t _verbose_begin = 0, int _timeout = 1000); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 
     void ESPyield();  // add yield(); command to code if platform is ESP32 or ESP8266
     int  getProtocol();                      // get protocol number
@@ -268,7 +268,7 @@ class PV_INVERTER
     char read(char _cmd);
     int receive( String cmd, String& str_return,  bool _CRChardcoded ); // 0 = successfull
                                                             // 1 = No serial communication
-                                                            // 2 = Not recognized command  // error codes should be positive integers                                                        
+                                                            // 2 = Not recognized command                                                        
     int send ( String inv_command, bool _CRChardcoded = false );       // 0 = serial communication up and running
                                                             // 1 = No serial communication  // should be change to true and false
                                                            
