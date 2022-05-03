@@ -247,26 +247,16 @@ class PV_INVERTER
     void console_data(pipVals_t _thisPIP);
     int  handle_automation(int _hour, int _min,  bool _CRChardcoded = false);
     int  ask_data(uint32_t _now,  bool _CRChardcoded = false);
-    
 
-/***************************************** private commands *******************************/
- private:
-
-    HardwareSerial* hwStream;
-    SoftwareSerial* swStream;
-    Stream* _streamRef;
-    uint8_t _VERBOSE_MODE;
-
-    int _inverter_protocol;    // "1" = 18 fields from QPIGS / "2" = 22 fields from QPIGS 
+    //later tese will be private functions. We leave it public for testing only.
     void store_QPIRI(String value);
     void store_QPIGS(String value, uint32_t _now);
     void clear_pipvals (pipVals_t &_thisPIP);
     void smoothing_QPIGS();
     void store_status();
     bool rap();
-    String addCRC(String _cmd);
     char read(char _cmd);
-    int receive( String cmd, String& str_return,  bool _CRChardcoded ); // 0 = successfull
+    int receive( String cmd, String& str_return,  bool _CRChardcoded = false ); // 0 = successfull
                                                             // 1 = No serial communication
                                                             // 2 = Not recognized command                                                        
     int send ( String inv_command, bool _CRChardcoded = false );       // 0 = serial communication up and running
@@ -274,13 +264,29 @@ class PV_INVERTER
                                                            
     void ask_QPIRI( String& _result, bool _CRChardcoded = false);    
 
-  int _average_count = 0;
+/***************************************** private commands *******************************/
+ private:
+
+    HardwareSerial* hwStream;
+    SoftwareSerial* swStream;
+    Stream* _streamRef;
+    uint8_t _VERBOSE_MODE = 0;
+
+    int _inverter_protocol;    // "1" = 18 fields from QPIGS / "2" = 22 fields from QPIGS 
+  
+    String addCRC(String _cmd);
+
+    int _average_count = 0;
     uint32_t _average_oldtime;
     pipVals_t _QPIGS_tempAverage;
- 
+  
 	  uint16_t crc_xmodem_update (uint16_t crc, uint8_t data);
 		uint16_t calc_crc(char *msg, int n);
 		
+    // other private functions. e.g. debug functions
+    String string2hex(String _input);
+    void debugMsg(char _msg);
+    void debugMsg(String _msg);
 };
 
 #endif 

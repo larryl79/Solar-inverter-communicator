@@ -51,8 +51,10 @@ void setup()
     }
     */
   #endif
-
-  inverter.begin(2400, 'A' , 1 /*VERBOSE_MODE */ );
+  
+  // void begin(uint32_t _baudRate, int _inverter_protocol = 1, uint8_t _verbose_begin = 0, int _timeout = 1000); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
+                                                                            // _verbose_begin: 0 = none  / 1 = Debug 
+  inverter.begin(2400, 1 , 1 /*VERBOSE_MODE */ );
 
   
   /* if ( lcdok == true )
@@ -76,17 +78,30 @@ void setup()
 // ******************************************  Loop  ******************************************
 void loop() {
   error_code = 0;
-  yield();
+  inverter.ESPyield();
   
+  /*
    error_code = inverter.ask_data(millis());
   if (error_code != 0)                 
   {
     Serial.println("-- ERROR: INVERTER: Error executing 'ask_inverter_data' function! Error code:" + String(error_code));        
   }
+  */
+ 
+  String result="";
+  error_code = inverter.receive(inverter.QPIGS, result );
+  if (error_code == 0 ) 
+    {
+    
+    inverter.store_QPIGS( result.c_str() , 0 );
+    inverter.console_data(inverter.QPIGS_values);
+    }
+
+  Serial.println();
+  Serial.println();
   
-  inverter.console_data(inverter.QPIGS_values);
   inverter.ESPyield();     // add yield(); to code if platform is ESP32 or ESP8266
-delay(1000);
+delay(5000);
 
 
 

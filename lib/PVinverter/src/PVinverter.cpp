@@ -185,15 +185,33 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         val = strtok(0, " "); // Get the next value
         char ds_temp[9];
         strcpy(ds_temp, val);
-        QPIGS_values.deviceStatus[0] = (int)ds_temp[0]-'0'; 
+        QPIGS_values.deviceStatus[0] = (bool)ds_temp[0]-'0'; 
+        DevStatus.ACcharge = QPIGS_values.deviceStatus[0];
         QPIGS_values.deviceStatus[1] = (int)ds_temp[1]-'0'; 
+        DevStatus.SCCcharge = QPIGS_values.deviceStatus[1];
         QPIGS_values.deviceStatus[2] = (int)ds_temp[2]-'0'; 
         QPIGS_values.deviceStatus[3] = (int)ds_temp[3]-'0'; 
         QPIGS_values.deviceStatus[4] = (int)ds_temp[4]-'0'; 
         QPIGS_values.deviceStatus[5] = (int)ds_temp[5]-'0'; 
         QPIGS_values.deviceStatus[6] = (int)ds_temp[6]-'0'; 
         QPIGS_values.deviceStatus[7] = (int)ds_temp[7]-'0'; 
-        
+/*
+          uint8_t changingFloatMode = 0 ;  // 10: flag for charging to floating mode
+      uint8_t SwitchOn = 0 ;           // b9: Switch On
+      uint8_t dustProof = 0 ;          // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+      uint8_t SBUpriority = 0 ;        // b7: add SBU priority version  b7
+      uint8_t ConfigStatus = 0 ;       // b6: configuration status: 1: Change 0: unchanged
+      uint8_t FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
+      uint8_t LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
+      uint8_t BattVoltSteady = 0 ;     // b3: battery voltage to steady while charging
+                                       // b2b1b0: 000: Do nothing 
+                                                  // 110: Charging on with SCC charge on
+                                                  // 101: Charging on with AC charge on
+                                                  // 111: Charging on with SCC and AC charge on
+      uint8_t Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
+      uint8_t SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
+      uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
+  */      
         if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
         {
           val = strtok(0, " "); // Get the next value
@@ -300,7 +318,7 @@ void PV_INVERTER::smoothing_QPIGS()
   }
 }
 
-void PV_INVERTER::clear_pipvals (pipVals_t &_thisPIP)
+void PV_INVERTER::clear_pipvals(pipVals_t &_thisPIP)
 {
     _thisPIP.gridVoltage              = 0;
     _thisPIP.gridFrequency            = 0;
@@ -342,7 +360,7 @@ void PV_INVERTER::clear_pipvals (pipVals_t &_thisPIP)
 
 }
 
-void PV_INVERTER::store_status ()   // this need investigate why causes reboot on ESP32
+void PV_INVERTER::store_status()   // this need investigate why causes reboot on ESP32
 {
   this->ESPyield();
   DevStatus.SBUpriority      = QPIGS_values.deviceStatus[0];
@@ -408,7 +426,6 @@ void PV_INVERTER::console_data(pipVals_t _thisPIP)
   Serial.println("Output Priority:......... " + String(_thisPIP.OutPutPriority) + " | 0: Utility first / 1: Solar first / 2: SBU first"); 
   Serial.println("Charging Priority:....... " + String(_thisPIP.ChargerSourcePriority) + " | 0: Utility first / 1: Solar first / 2: Solar + Utility / 3: Only solar"); 
 }
-
 
 int PV_INVERTER::getProtocol()
   {
@@ -492,16 +509,17 @@ char PV_INVERTER::read(char _cmd)   // new serial read function, no ready yet, a
   return false;
 }
 
-
 String PV_INVERTER::addCRC(String _cmd)
 {
-  if ( !_cmd )
+  String _CRC="";
+  if ( !_cmd.isEmpty() )
       {
       uint16_t _vgCrcCheck;
       int _vInvCommandLen = 0;
       char _s[6];
       int _CRC1; 
       int _CRC2;
+     
       _vInvCommandLen = _cmd.length();
       char _vInvCommandArray[_vInvCommandLen]; //Arrary define
 
@@ -518,24 +536,26 @@ String PV_INVERTER::addCRC(String _cmd)
       _vCrcCorrect.toCharArray(_s, 6);
       sscanf(_s, "%x %x", &_CRC1, &_CRC2);  
   
-      _cmd += char(_CRC1);   // add CRC byte 1
-      _cmd += char(_CRC2);   // add CRC byte 2    
+      _CRC = char(_CRC1);   // add CRC byte 1
+      _CRC += char(_CRC2);   // add CRC byte 2
+      this->debugMsg("CRC: " + string2hex(_CRC));    
     }
-return _cmd;
+return _CRC;
 }
-
-
 
 int PV_INVERTER::send(String _inv_command, bool _CRChardcoded)
 {
   if ( this->rap() )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
   {
+    this->debugMsg("Communiaction ok.");
     if (!_CRChardcoded)
       {
+        //this->debugMsg("Adding CRC");
         _inv_command += this->addCRC(_inv_command);   // add CRC sting to the command by protocol number
       }
     _inv_command += "\x0D";     // add CR
     //Sending Request to PV_INVERTER
+    this->debugMsg("Sending command: " + _inv_command +"   HEX: " + this->string2hex(_inv_command));
     _streamRef->print(_inv_command);
     _streamRef->flush();          // Wait finishing transmitting before going on...
   }
@@ -543,36 +563,37 @@ int PV_INVERTER::send(String _inv_command, bool _CRChardcoded)
   {
     return 1; // No serial communication, error code 1
   }
-   return 0; // NAKss returned, serial communication up and running
+   return 0; // OK. NAKss returned, serial communication up and running
 }
 
-int PV_INVERTER::receive( String cmd, String &str_return,  bool _CRChardcoded )
+int PV_INVERTER::receive( String _cmd, String &str_return,  bool _CRChardcoded )
 {
-  if ( this->send(cmd, _CRChardcoded) == 0 )
+  // debugMsg("Protocol: " + String(getProtocol()) );
+
+  if ( this->send(_cmd, _CRChardcoded) == 0 )
     {
       str_return = _streamRef->readStringUntil('\x0D');
       
       // checking Command not recognized 
       if (str_return == "(NAKss") 
       {
-        Serial.println("PV_INVERTER: " + cmd + ": Not recognized command: " + str_return);
+        debugMsg("PV_INVERTER: " + _cmd + ": Not recognized command: " + str_return);
         return 2;   
       }
 
       // TODO: TEST for CRC receipt match with calculated CRC
       
       if (_VERBOSE_MODE == 1)
-        Serial.println("PV_INVERTER: " + cmd + ": Command executed successfully. Returned: " + str_return);
+        debugMsg("PV_INVERTER: " + _cmd + ": Command executed successfully. Returned: " + str_return);
       return 0;
     }
     else
     {
       // No serial communication
-      Serial.println("PV_INVERTER: " + cmd + ": No serial communication");
+      debugMsg("PV_INVERTER: " + _cmd + ": No serial communication");
       str_return = "";
       return 1;
-    }
-    
+    }   
 }
 
 void PV_INVERTER::ask_QPIRI( String &_result, bool _CRChardcoded)
@@ -740,3 +761,34 @@ int PV_INVERTER::handle_automation(int _hour, int _min,  bool _CRChardcoded)
       }
       return _funct_return;
     }
+
+
+// other functions, e.g. debug functions
+
+String PV_INVERTER::string2hex(String _input)
+{
+  String _output = "";
+  String _tmp = "";
+    for(int i = 0; i < _input.length(); i++) {
+      _tmp = String(_input[i],HEX);
+      _tmp.toUpperCase();
+      if (char(_input[i]) <= 16)
+        {
+        _output += "0"; 
+        }
+        _output += _tmp + " "; 
+    }
+    //this->debugMsg("input string: " + _input);
+    this->debugMsg("hexval: "+ _output);
+    return _output;
+}
+
+void PV_INVERTER::debugMsg(char _msg)
+{
+if (_VERBOSE_MODE == 1) Serial.println(_msg);
+}
+
+void PV_INVERTER::debugMsg(String _msg)
+{
+if (_VERBOSE_MODE == 1) Serial.println(_msg);  
+}
