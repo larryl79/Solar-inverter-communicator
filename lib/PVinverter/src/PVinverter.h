@@ -110,7 +110,7 @@ class PV_INVERTER
       uint8_t changingFloatMode = 0 ;  // 10: flag for charging to floating mode
       uint8_t SwitchOn = 0 ;           // b9: Switch On
       uint8_t dustProof = 0 ;          // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
-      uint8_t SBUpriority = 0 ;        // b7: add SBU priority version  b7
+      uint8_t SBUpriority = 0 ;        // b7: add SBU priority version
       uint8_t ConfigStatus = 0 ;       // b6: configuration status: 1: Change 0: unchanged
       uint8_t FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
       uint8_t LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
@@ -253,7 +253,6 @@ class PV_INVERTER
     void store_QPIGS(String value, uint32_t _now);
     void clear_pipvals (pipVals_t &_thisPIP);
     void smoothing_QPIGS();
-    void store_status();
     bool rap();
     char read(char _cmd);
     int receive( String cmd, String& str_return,  bool _CRChardcoded = false ); // 0 = successfull

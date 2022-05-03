@@ -183,10 +183,13 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         QPIGS_values.batteryDischargeCurrent = atoi(val);
       
         val = strtok(0, " "); // Get the next value
+
+        
         char ds_temp[9];
+        /*
         strcpy(ds_temp, val);
-        QPIGS_values.deviceStatus[0] = (bool)ds_temp[0]-'0'; 
-        DevStatus.ACcharge = QPIGS_values.deviceStatus[0];
+        QPIGS_values.deviceStatus[0] = ds_temp[0]-'0'; 
+        DevStatus.ACcharge = (bool)QPIGS_values.deviceStatus[0];
         QPIGS_values.deviceStatus[1] = (int)ds_temp[1]-'0'; 
         DevStatus.SCCcharge = QPIGS_values.deviceStatus[1];
         QPIGS_values.deviceStatus[2] = (int)ds_temp[2]-'0'; 
@@ -195,24 +198,26 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         QPIGS_values.deviceStatus[5] = (int)ds_temp[5]-'0'; 
         QPIGS_values.deviceStatus[6] = (int)ds_temp[6]-'0'; 
         QPIGS_values.deviceStatus[7] = (int)ds_temp[7]-'0'; 
-/*
-          uint8_t changingFloatMode = 0 ;  // 10: flag for charging to floating mode
-      uint8_t SwitchOn = 0 ;           // b9: Switch On
-      uint8_t dustProof = 0 ;          // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
-      uint8_t SBUpriority = 0 ;        // b7: add SBU priority version  b7
-      uint8_t ConfigStatus = 0 ;       // b6: configuration status: 1: Change 0: unchanged
-      uint8_t FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
-      uint8_t LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
-      uint8_t BattVoltSteady = 0 ;     // b3: battery voltage to steady while charging
-                                       // b2b1b0: 000: Do nothing 
-                                                  // 110: Charging on with SCC charge on
-                                                  // 101: Charging on with AC charge on
-                                                  // 111: Charging on with SCC and AC charge on
-      uint8_t Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
-      uint8_t SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
-      uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
-  */      
-        if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
+        */
+
+        strcpy(QPIGS_values.deviceStatus, val);
+        DevStatus.SBUpriority     = (bool)QPIGS_values.deviceStatus[0]; // b7: add SBU priority version
+        DevStatus.ConfigStatus    = (bool)QPIGS_values.deviceStatus[1]; // b6: configuration status: 1: Change 0: unchanged
+        DevStatus.FwUpdate        = (bool)QPIGS_values.deviceStatus[2]; // b5: SCC firmware version 1: Updated 0: unchanged
+        DevStatus.LoadStatus      = (bool)QPIGS_values.deviceStatus[3]; // b4: Load status: 0: Load off 1:Load on
+        DevStatus.BattVoltSteady  = (bool)QPIGS_values.deviceStatus[4]; // b3: battery voltage to steady while charging
+        DevStatus.Chargingstatus  = (bool)QPIGS_values.deviceStatus[5]; // b2: Charging status( Charging on/off)
+        DevStatus.SCCcharge       = (bool)QPIGS_values.deviceStatus[6]; // b1: Charging status( SCC charging on/off)
+        DevStatus.ACcharge        = (bool)QPIGS_values.deviceStatus[7]; // b0: Charging status(AC charging on/off)
+        
+        if (this->getProtocol()==2 )
+          {
+          DevStatus.dustProof       = (bool)QPIGS_values.deviceStatus[8] ; // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+          DevStatus.SwitchOn        = (bool)QPIGS_values.deviceStatus[9] ; // b9: Switch On
+          DevStatus.SwitchOn        = (bool)QPIGS_values.deviceStatus[10]; // 10: flag for charging to floating mode
+          }
+
+        if ( this->getProtocol() == 2)   // 2 = 22 fields from QPIGS
         {
           val = strtok(0, " "); // Get the next value
           QPIGS_values.batOffsetFan = atoi(val);
@@ -228,6 +233,8 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
           QPIGS_values.deviceStatus2[0] = (int)ds_temp[0]-'0'; 
           QPIGS_values.deviceStatus2[1] = (int)ds_temp[1]-'0'; 
           QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]-'0'; 
+
+
 
         }
         this->store_status();
@@ -360,26 +367,6 @@ void PV_INVERTER::clear_pipvals(pipVals_t &_thisPIP)
 
 }
 
-void PV_INVERTER::store_status()   // this need investigate why causes reboot on ESP32
-{
-  this->ESPyield();
-  DevStatus.SBUpriority      = QPIGS_values.deviceStatus[0];
-  DevStatus.ConfigStatus     = QPIGS_values.deviceStatus[1];      // configuration status: 1: Change 0: unchanged b6
-  DevStatus.FwUpdate         = QPIGS_values.deviceStatus[2];      // b5: SCC firmware version 1: Updated 0: unchanged
-  DevStatus.LoadStatus       = QPIGS_values.deviceStatus[3];      // b4: Load status: 0: Load off 1:Load on
-  DevStatus.BattVoltSteady   = QPIGS_values.deviceStatus[4];      // b3: battery voltage to steady while charging
-  DevStatus.Chargingstatus   = QPIGS_values.deviceStatus[5];      // b2: Charging status( Charging on/off)
-  DevStatus.SCCcharge        = QPIGS_values.deviceStatus[6];      // b1: Charging status( SCC charging on/off)
-  DevStatus.ACcharge         = QPIGS_values.deviceStatus[7];      // b0: Charging status(AC charging on/off)
-  if ( _inverter_protocol == 2 )
-    {
-      DevStatus.dustProof              = QPIGS_values.deviceStatus[8] ;    // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)  
-      DevStatus.SwitchOn               = QPIGS_values.deviceStatus[9] ;    // b9: Switch On
-      DevStatus.changingFloatMode      = QPIGS_values.deviceStatus[10];    // b10: flag for charging to floating mode
-    }
-    
-}
-
 void PV_INVERTER::console_data(pipVals_t _thisPIP)
 {
   Serial.println("UNIX TIME:............... " + String(_thisPIP._unixtime) + " Epoch");
@@ -400,6 +387,7 @@ void PV_INVERTER::console_data(pipVals_t _thisPIP)
   Serial.println("PV Power:................ " + String(_thisPIP.PVPower   /100.00) + " W");  
   Serial.println("Battery SCC:............. " + String(_thisPIP.batterySCC/100.00) + " V"); 
   Serial.println("Batt DischargeCurrent:... " + String(_thisPIP.batteryDischargeCurrent) + " A"); 
+  Serial.println("DeviceStatus:............ " + String(_thisPIP.deviceStatus));
   Serial.println("DeviceStatus bit 0:...... " + String(_thisPIP.deviceStatus[0]));
   Serial.println("DeviceStatus bit 1:...... " + String(_thisPIP.deviceStatus[1]));
   Serial.println("DeviceStatus bit 2:...... " + String(_thisPIP.deviceStatus[2]));
