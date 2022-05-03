@@ -237,7 +237,6 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
 
 
         }
-        this->store_status();
   }
 }
 
@@ -363,7 +362,6 @@ void PV_INVERTER::clear_pipvals(pipVals_t &_thisPIP)
       _thisPIP.deviceStatus2[1]        = 0;
       _thisPIP.deviceStatus2[2]        = 0;
     }
-    this->store_status();
 
 }
 
