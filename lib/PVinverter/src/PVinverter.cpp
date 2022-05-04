@@ -434,6 +434,7 @@ void PV_INVERTER::setProtocol(int _protocol_no)
 
 
 // ******************************************  CRC Functions  ******************************************
+
 uint16_t PV_INVERTER::crc_xmodem_update (uint16_t crc, uint8_t data)
 {
   int i;
@@ -474,36 +475,6 @@ uint16_t PV_INVERTER::calc_crc(char *msg, int n)
 return( _CRC );
 }
 
-// ******************************************  PV_INVERTER communication  *********************************
-
-bool PV_INVERTER::rap()   //knocknock to get synced commauncation if avail
-{
-  bool _communication = false;
-  this->_streamRef->print("QKnock-Knock\x0D");  //  knock-knock for communiction exist
-  this->_streamRef->flush();          // Wait finishing transmitting before going on...
-  if (this->_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
-    { _communication = true; }
-    return _communication; // true if ok, false for no communication.
-}
-
-char PV_INVERTER::read(char _cmd)   // new serial read function, no ready yet, and not tested.
-{
-  char _str_return;
-   if ( this->send(String(_cmd)) == 0 )
-    {
-      while ( _streamRef->available() > 0)
-        {
-        _str_return = _streamRef->read();
-        if ( _str_return == '\x0D' )
-          {
-            return _str_return;
-          }
-        this->ESPyield();
-        }
-    }
-  return false;
-}
-
 String PV_INVERTER::addCRC(String _cmd)
 {
   String _CRC="";
@@ -536,6 +507,36 @@ String PV_INVERTER::addCRC(String _cmd)
       this->debugMsg("CRC: " + string2hex(_CRC));    
     }
 return _CRC;
+}
+
+// ******************************************  PV_INVERTER communication  *********************************
+
+bool PV_INVERTER::rap()   //knocknock to get synced commauncation if avail
+{
+  bool _communication = false;
+  this->_streamRef->print("QKnock-Knock\x0D");  //  knock-knock for communiction exist
+  this->_streamRef->flush();          // Wait finishing transmitting before going on...
+  if (this->_streamRef->readStringUntil('\x0D') == "(NAKss" )   // check if get response for "knock-knock" from PV_INVERTER on serial port.
+    { _communication = true; }
+    return _communication; // true if ok, false for no communication.
+}
+
+char PV_INVERTER::read(char _cmd)   // new serial read function, no ready yet, and not tested.
+{
+  char _str_return;
+   if ( this->send(String(_cmd)) == 0 )
+    {
+      while ( _streamRef->available() > 0)
+        {
+        _str_return = _streamRef->read();
+        if ( _str_return == '\x0D' )
+          {
+            return _str_return;
+          }
+        this->ESPyield();
+        }
+    }
+  return false;
 }
 
 int PV_INVERTER::send(String _inv_command, bool _CRChardcoded)
@@ -603,7 +604,7 @@ void PV_INVERTER::ask_QPIRI( String &_result, bool _CRChardcoded)
       }
       else
       {
-        _funct_return = this->receive(QPIRI, _result, _CRChardcoded);
+        _funct_return = this->receive(QPIRI, _result);
       }
       
       if (_funct_return == 0) 
