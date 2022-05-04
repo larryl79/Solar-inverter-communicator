@@ -107,21 +107,21 @@ class PV_INVERTER
 
     struct DevStatus_t 
     {
-      uint8_t changingFloatMode = 0 ;  // 10: flag for charging to floating mode
-      uint8_t SwitchOn = 0 ;           // b9: Switch On
-      uint8_t dustProof = 0 ;          // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
-      uint8_t SBUpriority = 0 ;        // b7: add SBU priority version
-      uint8_t ConfigStatus = 0 ;       // b6: configuration status: 1: Change 0: unchanged
-      uint8_t FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
-      uint8_t LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
-      uint8_t BattVoltSteady = 0 ;     // b3: battery voltage to steady while charging
+      bool changingFloatMode = 0 ;  // 10: flag for charging to floating mode
+      bool SwitchOn = 0 ;           // b9: Switch On
+      bool dustProof = 0 ;          // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+      bool SBUpriority = 0 ;        // b7: add SBU priority version
+      bool ConfigStatus = 0 ;       // b6: configuration status: 1: Change 0: unchanged
+      bool FwUpdate = 0 ;           // b5: SCC firmware version 1: Updated 0: unchanged
+      bool LoadStatus = 0 ;         // b4: Load status: 0: Load off 1:Load on
+      bool BattVoltSteady = 0 ;     // b3: battery voltage to steady while charging
                                        // b2b1b0: 000: Do nothing 
                                                   // 110: Charging on with SCC charge on
                                                   // 101: Charging on with AC charge on
                                                   // 111: Charging on with SCC and AC charge on
-      uint8_t Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
-      uint8_t SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
-      uint8_t ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
+      bool Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
+      bool SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
+      bool ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
     } DevStatus;
 
     struct QpiriVals_t  // Device Rating Information inquiry

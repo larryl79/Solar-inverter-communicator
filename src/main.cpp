@@ -29,7 +29,7 @@ void setup()
     {
     ; // wait for serial port to connect. Needed for native USB port only
     }
-  Serial.println("");
+  Serial.println();
   #ifdef USE_SOFTWARESERIAL
   Serial.println("Setup serial3 for sodtwareserial");
   Serial3.begin(2400); //MPP-Solar inverter Baud Setting(http://www.offgrid.casa/wp-content/uploads/2017/10/HS_MS_MSX_RS232_Protocol_20140822_after_current_upgrade.pdf)
@@ -94,7 +94,31 @@ void loop() {
     {
     
     inverter.store_QPIGS( result.c_str() , 0 );
-    inverter.console_data(inverter.QPIGS_values);
+    //inverter.console_data(inverter.QPIGS_values);
+  
+  Serial.println("DevStatus.SBUpriority:............. " + String(inverter.DevStatus.SBUpriority));
+  Serial.println("DevStatus.ConfigStatus:............ " + String(inverter.DevStatus.ConfigStatus));
+  Serial.println("DevStatus.FwUpdate:................ " + String(inverter.DevStatus.FwUpdate));
+  Serial.println("DevStatus.LoadStatus:.............. " + String(inverter.DevStatus.LoadStatus));
+  Serial.println("DevStatus.BattVoltSteady:.......... " + String(inverter.DevStatus.BattVoltSteady));
+  Serial.println("DevStatus.Chargingstatus:.......... " + String(inverter.DevStatus.Chargingstatus));
+  Serial.println("DevStatus.SCCcharget:.............. " + String(inverter.DevStatus.SCCcharge));
+  Serial.println("DevStatus.ACcharge:................ " + String(inverter.DevStatus.ACcharge)); 
+        
+        if (inverter.getProtocol()==2 )
+          {
+          Serial.println("DevStatus.dustProof:............ " + String(inverter.DevStatus.dustProof));
+  Serial.println("DevStatus.SwitchOn:............. " + String(inverter.DevStatus.SwitchOn)); 
+  Serial.println("DevStatus.changingFloatMode:......... " + String(inverter.DevStatus.changingFloatMode));
+          }
+    }
+  if (inverter.DevStatus.SCCcharge)
+    {
+      digitalWrite(heartbeat_led, HIGH);
+    }
+    else
+    {
+      digitalWrite(heartbeat_led, LOW);
     }
 
   Serial.println();

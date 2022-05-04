@@ -201,20 +201,20 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         */
 
         strcpy(QPIGS_values.deviceStatus, val);
-        DevStatus.SBUpriority     = (bool)QPIGS_values.deviceStatus[0]; // b7: add SBU priority version
-        DevStatus.ConfigStatus    = (bool)QPIGS_values.deviceStatus[1]; // b6: configuration status: 1: Change 0: unchanged
-        DevStatus.FwUpdate        = (bool)QPIGS_values.deviceStatus[2]; // b5: SCC firmware version 1: Updated 0: unchanged
-        DevStatus.LoadStatus      = (bool)QPIGS_values.deviceStatus[3]; // b4: Load status: 0: Load off 1:Load on
-        DevStatus.BattVoltSteady  = (bool)QPIGS_values.deviceStatus[4]; // b3: battery voltage to steady while charging
-        DevStatus.Chargingstatus  = (bool)QPIGS_values.deviceStatus[5]; // b2: Charging status( Charging on/off)
-        DevStatus.SCCcharge       = (bool)QPIGS_values.deviceStatus[6]; // b1: Charging status( SCC charging on/off)
-        DevStatus.ACcharge        = (bool)QPIGS_values.deviceStatus[7]; // b0: Charging status(AC charging on/off)
+        DevStatus.SBUpriority     = (uint8_t)QPIGS_values.deviceStatus[0]-'0'; // b7: add SBU priority version
+        DevStatus.ConfigStatus    = (uint8_t)QPIGS_values.deviceStatus[1]-'0'; // b6: configuration status: 1: Change 0: unchanged
+        DevStatus.FwUpdate        = (uint8_t)QPIGS_values.deviceStatus[2]-'0'; // b5: SCC firmware version 1: Updated 0: unchanged
+        DevStatus.LoadStatus      = (uint8_t)QPIGS_values.deviceStatus[3]-'0'; // b4: Load status: 0: Load off 1:Load on
+        DevStatus.BattVoltSteady  = (uint8_t)QPIGS_values.deviceStatus[4]-'0'; // b3: battery voltage to steady while charging
+        DevStatus.Chargingstatus  = (uint8_t)QPIGS_values.deviceStatus[5]-'0'; // b2: Charging status( Charging on/off)
+        DevStatus.SCCcharge       = (uint8_t)QPIGS_values.deviceStatus[6]-'0'; // b1: Charging status( SCC charging on/off)
+        DevStatus.ACcharge        = (uint8_t)QPIGS_values.deviceStatus[7]-'0'; // b0: Charging status(AC charging on/off)
         
         if (this->getProtocol()==2 )
           {
-          DevStatus.dustProof       = (bool)QPIGS_values.deviceStatus[8] ; // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
-          DevStatus.SwitchOn        = (bool)QPIGS_values.deviceStatus[9] ; // b9: Switch On
-          DevStatus.SwitchOn        = (bool)QPIGS_values.deviceStatus[10]; // 10: flag for charging to floating mode
+          DevStatus.dustProof         = (bool)QPIGS_values.deviceStatus[8] ; // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+          DevStatus.SwitchOn          = (bool)QPIGS_values.deviceStatus[9] ; // b9: Switch On
+          DevStatus.changingFloatMode = (bool)QPIGS_values.deviceStatus[10]; // 10: flag for charging to floating mode
           }
 
         if ( this->getProtocol() == 2)   // 2 = 22 fields from QPIGS
