@@ -367,25 +367,34 @@ void PV_INVERTER::clear_pipvals(pipVals_t &_thisPIP)
 
 void PV_INVERTER::console_data(pipVals_t _thisPIP)
 {
-  Serial.println("UNIX TIME:............... " + String(_thisPIP._unixtime) + " Epoch");
-  Serial.println("Grid Voltage:............ " + String(_thisPIP.gridVoltage) + " V");
-  Serial.println("Grid Frequency:.......... " + String(_thisPIP.gridFrequency/10.0) + " Hz");
-  Serial.println("AC Output:............... " + String(_thisPIP.acOutput) + " V");
-  Serial.println("AC Frequency:............ " + String(_thisPIP.acFrequency/10.0) + " Hz");
-  Serial.println("AC ApparentPower:........ " + String(_thisPIP.acApparentPower) + " VA");
-  Serial.println("AC ActivePower:.......... " + String(_thisPIP.acActivePower) + " W");
-  Serial.println("Load Percent:............ " + String(_thisPIP.loadPercent) + " %");
-  Serial.println("Bus Voltage:............. " + String(_thisPIP.busVoltage) + " V"); 
-  Serial.println("Battery Voltage:......... " + String(_thisPIP.batteryVoltage/100.00)+ " V");
-  Serial.println("Battery ChargeCurrent:... " + String(_thisPIP.batteryChargeCurrent) + " A"); 
-  Serial.println("Battery Charge:.......... " + String(_thisPIP.batteryCharge) + " %"); 
-  Serial.println("PV_INVERTER Temperature:. " + String(_thisPIP.inverterTemperature /10.0) + " °C"); 
-  Serial.println("PV Current:.............. " + String(_thisPIP.PVCurrent /10.0)+ " A");
-  Serial.println("PV Voltage:.............. " + String(_thisPIP.PVVoltage /10.0) + " V"); 
-  Serial.println("PV Power:................ " + String(_thisPIP.PVPower   /100.00) + " W");  
-  Serial.println("Battery SCC:............. " + String(_thisPIP.batterySCC/100.00) + " V"); 
-  Serial.println("Batt DischargeCurrent:... " + String(_thisPIP.batteryDischargeCurrent) + " A"); 
-  Serial.println("DeviceStatus:............ " + String(_thisPIP.deviceStatus));
+  Serial.println("UNIX TIME:................ " + String(_thisPIP._unixtime) + " Epoch");
+  Serial.println("Grid Voltage:............. " + String(_thisPIP.gridVoltage) + " V");
+  Serial.println("Grid Frequency:........... " + String(_thisPIP.gridFrequency/10.0) + " Hz");
+  Serial.println("AC Output:................ " + String(_thisPIP.acOutput) + " V");
+  Serial.println("AC Frequency:............. " + String(_thisPIP.acFrequency/10.0) + " Hz");
+  Serial.println("AC ApparentPower:......... " + String(_thisPIP.acApparentPower) + " VA");
+  Serial.println("AC ActivePower:........... " + String(_thisPIP.acActivePower) + " W");
+  Serial.println("Load Percent:............. " + String(_thisPIP.loadPercent) + " %");
+  Serial.println("Bus Voltage:.............. " + String(_thisPIP.busVoltage) + " V"); 
+  Serial.println("Battery Voltage:.......... " + String(_thisPIP.batteryVoltage/100.00)+ " V");
+  Serial.println("Battery ChargeCurrent:.... " + String(_thisPIP.batteryChargeCurrent) + " A"); 
+  Serial.println("Battery Charge:........... " + String(_thisPIP.batteryCharge) + " %"); 
+  Serial.println("PV_INVERTER Temperature:.. " + String(_thisPIP.inverterTemperature /10.0) + " °C"); 
+  Serial.println("PV Current:............... " + String(_thisPIP.PVCurrent /10.0)+ " A");
+  Serial.println("PV Voltage:............... " + String(_thisPIP.PVVoltage /10.0) + " V"); 
+  Serial.println("PV Power:................. " + String(_thisPIP.PVPower   /100.00) + " W");  
+  Serial.println("Battery SCC:.............. " + String(_thisPIP.batterySCC/100.00) + " V"); 
+  Serial.println("Batt DischargeCurrent:.... " + String(_thisPIP.batteryDischargeCurrent) + " A"); 
+  Serial.println("DeviceStatus:............. " + String(_thisPIP.deviceStatus));
+  Serial.println("DevStatus.SBUpriority:.... " + String(DevStatus.SBUpriority));
+  Serial.println("DevStatus.ConfigStatus:... " + String(DevStatus.ConfigStatus));
+  Serial.println("DevStatus.FwUpdate:....... " + String(DevStatus.FwUpdate));
+  Serial.println("DevStatus.LoadStatus:..... " + String(DevStatus.LoadStatus));
+  Serial.println("DevStatus.BattVoltSteady:. " + String(DevStatus.BattVoltSteady));
+  Serial.println("DevStatus.Chargingstatus:. " + String(DevStatus.Chargingstatus));
+  Serial.println("DevStatus.SCCcharget:..... " + String(DevStatus.SCCcharge));
+  Serial.println("DevStatus.ACcharge:....... " + String(DevStatus.ACcharge)); 
+/*
   Serial.println("DeviceStatus bit 0:...... " + String(_thisPIP.deviceStatus[0]));
   Serial.println("DeviceStatus bit 1:...... " + String(_thisPIP.deviceStatus[1]));
   Serial.println("DeviceStatus bit 2:...... " + String(_thisPIP.deviceStatus[2]));
@@ -394,7 +403,7 @@ void PV_INVERTER::console_data(pipVals_t _thisPIP)
   Serial.println("DeviceStatus bit 5:...... " + String(_thisPIP.deviceStatus[5]));
   Serial.println("DeviceStatus bit 6:...... " + String(_thisPIP.deviceStatus[6]));
   Serial.println("DeviceStatus bit 7:...... " + String(_thisPIP.deviceStatus[7]));
-  
+  */
   if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
   {
     Serial.println("Battery offset Fan:.... " + String(_thisPIP.batOffsetFan) + " V");
@@ -765,7 +774,7 @@ String PV_INVERTER::string2hex(String _input)
         _output += _tmp + " "; 
     }
     //this->debugMsg("input string: " + _input);
-    this->debugMsg("hexval: "+ _output);
+    //this->debugMsg("hexval: "+ _output);
     return _output;
 }
 
