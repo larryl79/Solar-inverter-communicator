@@ -185,7 +185,7 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         val = strtok(0, " "); // Get the next value
 
         
-        char ds_temp[9];
+        // char ds_temp[9];  unused var
         /*
         strcpy(ds_temp, val);
         QPIGS_values.deviceStatus[0] = ds_temp[0]-'0'; 
@@ -229,13 +229,22 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
           QPIGS_values.PV1_chargPower = atoi(val);
         
           val = strtok(0, " "); // Get the next value
-          strcpy(ds_temp, String(val).substring(0,3).c_str());
+          /*
+          strcpy(ds_temp, String(val).substring(0,3).c_str());  // unnecessary conversion to sting and back to char...
           QPIGS_values.deviceStatus2[0] = (int)ds_temp[0]-'0'; 
           QPIGS_values.deviceStatus2[1] = (int)ds_temp[1]-'0'; 
-          QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]-'0'; 
-
-
-
+          QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]-'0';
+          */
+          byte lenght = strlen(val);
+          val[lenght - 1] = '\0';  // replace last caharacter whit NULL
+          strcpy(QPIGS_values.deviceStatus2, val);
+          for ( int i = 0; i < 3; i++ )
+            {
+            QPIGS_values.deviceStatus[ 8 + i ] = val[i]; //copy bits to end of QPIGS devicestatus
+            }
+          DevStatus.dustProof         = (uint8_t)QPIGS_values.deviceStatus2[0] ; // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+          DevStatus.SwitchOn          = (uint8_t)QPIGS_values.deviceStatus2[1] ; // b9: Switch On
+          DevStatus.changingFloatMode = (uint8_t)QPIGS_values.deviceStatus2[2] ; // 10: flag for charging to floating mode
         }
   }
 }

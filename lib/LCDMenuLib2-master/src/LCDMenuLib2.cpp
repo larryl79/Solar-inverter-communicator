@@ -35,10 +35,8 @@
  * ******************************************************************************
  */
 
-
 #include "LCDMenuLib2.h"
 #include "LCDMenuLib2_typedef.h"
-
 
 /* ******************************************************************** */
 LCDMenuLib2::LCDMenuLib2(LCDMenuLib2_menu &p_r, const uint8_t p_rows, const uint8_t p_cols, LCDML_FuncPtr contentUpdate, LCDML_FuncPtr contentClear, LCDML_FuncPtr   menuControl)
