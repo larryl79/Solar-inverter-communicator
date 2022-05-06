@@ -73,7 +73,7 @@ class PV_INVERTER
 
     // Structure to store the data for QPIGS
     struct pipVals_t {
-      uint32_t _unixtime;
+      uint32_t unixtime;
       uint32_t gridVoltage;             // xxx V   
       uint32_t gridFrequency;           // xx.xx Hz  * 10
       uint32_t acOutput;                // xxx V   
@@ -235,8 +235,8 @@ class PV_INVERTER
     pipVals_t QPIGS_average;
 
 
-    PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
-    PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
+    PV_INVERTER( HardwareSerial& device); // {hwStream = &device;}
+    PV_INVERTER( SoftwareSerial& device); // {swStream = &device;}
 
     void begin(uint32_t _baudRate, int _inverter_protocol = 1, uint8_t _verbose_begin = 0, int _timeout = 1000); // _protocol: 1 = 18 fields from QPIGS / 2 = 22 fields from QPIGS 
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 

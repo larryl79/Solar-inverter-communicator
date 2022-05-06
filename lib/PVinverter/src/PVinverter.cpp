@@ -11,6 +11,9 @@
 
 #include "PVinverter.h"
 
+PV_INVERTER::PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
+PV_INVERTER::PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
+
 void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _verbose_begin, int _timeout ) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
 {
   if (hwStream)
@@ -115,7 +118,7 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
   } else {
     
         // Sets provided unixtime as argument for the QPIGS_values
-        QPIGS_values._unixtime = _now;
+        QPIGS_values.unixtime = _now;
  
   
         //--- Update status with data read from inverter serial communication ---------------------------------  
@@ -212,9 +215,9 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         
         if (this->getProtocol()==2 )
           {
-          DevStatus.dustProof         = (bool)QPIGS_values.deviceStatus[8] ; // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
-          DevStatus.SwitchOn          = (bool)QPIGS_values.deviceStatus[9] ; // b9: Switch On
-          DevStatus.changingFloatMode = (bool)QPIGS_values.deviceStatus[10]; // 10: flag for charging to floating mode
+          DevStatus.dustProof         = (uint8_t)QPIGS_values.deviceStatus[8]-'0' ; // b8: flag for dustproof installed(1-dustproof installed,0-no dustproof, only available for Axpert V series)
+          DevStatus.SwitchOn          = (uint8_t)QPIGS_values.deviceStatus[9]-'0' ; // b9: Switch On
+          DevStatus.changingFloatMode = (uint8_t)QPIGS_values.deviceStatus[10]-'0'; // 10: flag for charging to floating mode
           }
 
         if ( this->getProtocol() == 2)   // 2 = 22 fields from QPIGS
@@ -261,7 +264,7 @@ void PV_INVERTER::smoothing_QPIGS()
   else
   {
     // Accumulaets readings on temp structure
-    _QPIGS_tempAverage._unixtime                 =  QPIGS_values._unixtime;         // take the lastest read string only
+    _QPIGS_tempAverage.unixtime                 =  QPIGS_values.unixtime;         // take the lastest read string only
     _QPIGS_tempAverage.gridVoltage              += QPIGS_values.gridVoltage;
     _QPIGS_tempAverage.gridFrequency            += QPIGS_values.gridFrequency;
     _QPIGS_tempAverage.acOutput                 += QPIGS_values.acOutput;
@@ -292,7 +295,7 @@ void PV_INVERTER::smoothing_QPIGS()
     //--- when _average_count = 9: calculate average amounts to update QPIGS_average structure ---------------
     if(_average_count == 9)
     {
-        QPIGS_average._unixtime               = _QPIGS_tempAverage._unixtime;         // take the lastest read string only
+        QPIGS_average.unixtime                = _QPIGS_tempAverage.unixtime;         // take the lastest read string only
         QPIGS_average.gridVoltage             = _QPIGS_tempAverage.gridVoltage/10;
         QPIGS_average.gridFrequency           = _QPIGS_tempAverage.gridFrequency/10 ;
         QPIGS_average.acOutput                = _QPIGS_tempAverage.acOutput/10;
@@ -376,7 +379,7 @@ void PV_INVERTER::clear_pipvals(pipVals_t &_thisPIP)
 
 void PV_INVERTER::console_data(pipVals_t _thisPIP)
 {
-  Serial.println("UNIX TIME:................ " + String(_thisPIP._unixtime) + " Epoch");
+  Serial.println("UNIX TIME:................ " + String(_thisPIP.unixtime) + " Epoch");
   Serial.println("Grid Voltage:............. " + String(_thisPIP.gridVoltage) + " V");
   Serial.println("Grid Frequency:........... " + String(_thisPIP.gridFrequency/10.0) + " Hz");
   Serial.println("AC Output:................ " + String(_thisPIP.acOutput) + " V");

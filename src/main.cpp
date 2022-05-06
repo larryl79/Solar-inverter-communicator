@@ -13,12 +13,17 @@
 #define heartbeat_led 2     // hearbeat led pin for ESP32-CAM  4 flashlight / internal led 33   esp32 led 2
 
 
-String swversion="0.1b";
+
+char swversion[] = "V0.1b";
 int error_code = 0;
 // include inverter lib
 #include <PVinverter.h>
 // inverter lib constructor
 PV_INVERTER inverter(Serial2);
+
+#include <PVinverterLCD.h>
+//U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
+PVinverterLCD lcd( 25, 33,32, U8X8_PIN_NONE);
 
 
 // ******************************************  Setup  ******************************************
@@ -70,6 +75,9 @@ void setup()
   */  
   delay(2000);
   
+  lcd.begin();
+  lcd.bootscreen( "PV Inverter Commnuicator", swversion);
+  // lcd.QPIGS();
   
   pinMode(heartbeat_led, OUTPUT); //set up internal hearbeat led
   digitalWrite(heartbeat_led, LOW);
@@ -94,8 +102,8 @@ void loop() {
     {
     
     inverter.store_QPIGS( result.c_str() , 0 );
-    //inverter.console_data(inverter.QPIGS_values);
-  
+    inverter.console_data(inverter.QPIGS_values);
+  /*
   Serial.println("DevStatus.SBUpriority:............. " + String(inverter.DevStatus.SBUpriority));
   Serial.println("DevStatus.ConfigStatus:............ " + String(inverter.DevStatus.ConfigStatus));
   Serial.println("DevStatus.FwUpdate:................ " + String(inverter.DevStatus.FwUpdate));
@@ -104,7 +112,7 @@ void loop() {
   Serial.println("DevStatus.Chargingstatus:.......... " + String(inverter.DevStatus.Chargingstatus));
   Serial.println("DevStatus.SCCcharget:.............. " + String(inverter.DevStatus.SCCcharge));
   Serial.println("DevStatus.ACcharge:................ " + String(inverter.DevStatus.ACcharge)); 
-        
+   */     
         if (inverter.getProtocol()==2 )
           {
           Serial.println("DevStatus.dustProof:............ " + String(inverter.DevStatus.dustProof));
