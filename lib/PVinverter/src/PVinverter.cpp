@@ -11,8 +11,8 @@
 
 #include "PVinverter.h"
 
-PV_INVERTER::PV_INVERTER( HardwareSerial& device) {hwStream = &device;}
-PV_INVERTER::PV_INVERTER( SoftwareSerial& device) {swStream = &device;}
+PV_INVERTER::PV_INVERTER( HardwareSerial &device) {hwStream = &device;}
+PV_INVERTER::PV_INVERTER( SoftwareSerial &device) {swStream = &device;}
 
 void PV_INVERTER::begin(uint32_t _baudRate, int _inverter_protocol, uint8_t _verbose_begin, int _timeout ) // "A" = 18 fields from QPIGS / "B" = 22 fields from QPIGS 
 {
@@ -54,6 +54,8 @@ void PV_INVERTER::ESPyield()
   yield();
   #endif
 }
+
+bool PV_INVERTER::GeDevStatustACcharge() { return this->DevStatus.ACcharge; } 
 
 void PV_INVERTER::store_QPIRI(String value)
 {

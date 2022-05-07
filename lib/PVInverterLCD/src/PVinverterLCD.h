@@ -13,7 +13,8 @@
   #endif
 
 
-//extern *inverter.DevStatus myDevStatus;
+extern struct DevStatus_t DevStatus;
+
 
 class PVinverterLCD
       {
@@ -27,7 +28,7 @@ class PVinverterLCD
         void QPIGS();
 
       private:
-        PV_INVERTER& DevStatus;
+        
 
       };
 

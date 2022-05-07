@@ -105,7 +105,9 @@ class PV_INVERTER
       
     } QPIGS_values;
 
-    struct DevStatus_t 
+    //new QPIGS_values pipVals_t;
+
+    typedef struct DevStatus_t 
     {
       bool changingFloatMode = 0 ;  // 10: flag for charging to floating mode
       bool SwitchOn = 0 ;           // b9: Switch On
@@ -122,7 +124,9 @@ class PV_INVERTER
       bool Chargingstatus = 0 ;     // b2: Charging status( Charging on/off)
       bool SCCcharge = 0 ;          // b1: Charging status( SCC charging on/off)
       bool ACcharge = 0 ;           // b0: Charging status(AC charging on/off)
-    } DevStatus;
+    } DevStatus_t;
+
+    DevStatus_t DevStatus;
 
     struct QpiriVals_t  // Device Rating Information inquiry
     {
@@ -243,6 +247,7 @@ class PV_INVERTER
     void ESPyield();  // add yield(); command to code if platform is ESP32 or ESP8266
     int  getProtocol();                      // get protocol number
     void setProtocol(int _protocol_no);      // set protocol number  (ovverides PV_INVERTER::begin) //0 no CRC add, 1 HPS, 2 MAX
+    bool GeDevStatustACcharge();
     
     void console_data(pipVals_t _thisPIP);
     int  handle_automation(int _hour, int _min,  bool _CRChardcoded = false);

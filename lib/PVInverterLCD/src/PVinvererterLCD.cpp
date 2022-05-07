@@ -2,9 +2,9 @@
 #include <string.h>
 // #include "../../PVinverter/src/PVinverter.h">
 
-extern class PV_INVERTER.*DevStatus LCDDevStatus;
 
- U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
+
+U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
 
   // settings for u8g lib and LCD
   #define _INVLCD_DISP_w                 128            // LCD width
@@ -83,7 +83,8 @@ void PVinverterLCD::QPIGS()
     }
   //PV_inverter->devsatus.ACcharge
   u8g2.setFont(_INVLCD_DISP_font);
-  u8g2.drawStr(0,10,LCDDevStatus.ACcharge);
+  bool a = DevStatus.SCCcharge;
+  u8g2.drawStr(0,10,(const char*)a);
 
   //u8g2.drawString(0,0,"Line 0");
   //u8g2.drawString(0,8,"Line 8");
