@@ -1,21 +1,10 @@
-// ============================================================
-// Example:     LCDML: graphic display with u8g
-// ============================================================
-// Author:      Jomelo
-// Last update: 21.01.2018
-// License:     MIT
-// ============================================================
-// Description:
-// This example shows how to use the u8glib with the LCDMenuLib
-// The menu can placed in a box that can be placed anywhere on
-// the screen.
-// ============================================================
+
 // *********************************************************************
 // special settings
 // *********************************************************************
 // enable this line when you are not usigng a standard arduino
 // for example when your chip is an ESP or a STM or SAM or something else
-//#define _LCDML_cfg_use_ram 
+#define _LCDML_cfg_use_ram 
 
   // include libs
   #include <LCDMenuLib2.h>
@@ -37,15 +26,15 @@
 // U8GLIB
 // *********************************************************************
   // U8g2 Constructor List (Frame Buffer)
-  U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
+ U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
 
   // settings for u8g lib and LCD
   #define _LCDML_DISP_w                 128            // LCD width
   #define _LCDML_DISP_h                 64             // LCD height
   // font settings
   #define _LCDML_DISP_font              u8g2_font_squeezed_r7_tr   // u8g_font_6x13  // u8glib font (more fonts under u8g.h line 1520 ...)
-  #define _LCDML_DISP_font_w            7              // font width
-  #define _LCDML_DISP_font_h            8             // font height
+  #define _LCDML_DISP_font_w            6              // font width 
+  #define _LCDML_DISP_font_h            8             // (font height + 1px space)
   // cursor settings
   #define _LCDML_DISP_cursor_char       ">"            // cursor char
   #define _LCDML_DISP_cur_space_before  2              // cursor space between
@@ -87,7 +76,6 @@
 // Modification for PlatformIO and similar platforms
   #include "LCDML_display_dynFunction.h"
   #include "LCDML_display_menu.h"
-  #include "LCDML_condition.h"
   #include "LCDML_display_menuFunction.h"
   #include "LCDML_control.h"
 
@@ -102,7 +90,7 @@
 
   // For beginners
   // LCDML_add(id, prev_layer, new_num, lang_char_array, callback_function)
-  LCDML_add         (0  , LCDML_0         , 1  , "Information"      , mFunc_information);       // this menu function can be found on "LCDML_display_menuFunction" tab
+  LCDML_add         (0  , LCDML_0         , 1  , "General Information"      , mFunc_information);       // this menu function can be found on "LCDML_display_menuFunction" tab
   LCDML_add         (1  , LCDML_0         , 2  , "Time info"        , mFunc_timer_info);        // this menu function can be found on "LCDML_display_menuFunction" tab
   LCDML_add         (2  , LCDML_0         , 3  , "Program"          , NULL);                    // NULL = no menu function
   LCDML_add         (3  , LCDML_0_3       , 1  , "Program 1"        , NULL);                    // NULL = no menu function
@@ -153,45 +141,6 @@
 
   // create menu
   LCDML_createMenu(_LCDML_DISP_cnt);
-
-
-
-
-// *********************************************************************
-// SETUP
-// *********************************************************************
-  void setup()
-  {
-    u8g2.begin();
-
-    // serial init; only be needed if serial control is used
-    Serial.begin(9600);                // start serial
-    Serial.println(F(_LCDML_VERSION)); // only for examples
-
-    // LCDMenuLib Setup
-    LCDML_setup(_LCDML_DISP_cnt);
-
-    // Enable Menu Rollover
-    LCDML.MENU_enRollover();
-
-    // Enable Screensaver (screensaver menu function, time to activate in ms)
-    LCDML.SCREEN_enable(mFunc_screensaver, 60000); // set to 60 seconds
-    //LCDML.SCREEN_disable();
-
-    // Some needful methods
-
-    // You can jump to a menu function from anywhere with
-    //LCDML.OTHER_jumpToFunc(mFunc_p2); // the parameter is the function name
-  }
-
-// *********************************************************************
-// LOOP
-// *********************************************************************
-  void loop()
-  {
-    // this function must called here, do not delete it
-    LCDML.loop();
-  }
 
 
 // *********************************************************************

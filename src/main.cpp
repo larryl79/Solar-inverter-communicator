@@ -16,12 +16,16 @@
 //U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
 PVinverterLCD lcd( 25, 33,32, U8X8_PIN_NONE);
 
-char swversion[] = "V0.1b";
+char swversion[] = "V0.1c";
 int error_code = 0;
 // include inverter lib
 #include <PVinverter.h>
 // inverter lib constructor
 PV_INVERTER inverter(Serial2);
+
+#define LCDML_DBG
+#include <LCDMenuLib2.h>
+#include <menu/LCDMmenu.h>
 
 
 
@@ -65,15 +69,15 @@ void setup()
   /* if ( lcdok == true )
     {
     lcdclear();
-    lcdsetCursor(3,0);
-    lcdprint("Solar Inverter");
-    lcdsetCursor(4,1);
-    lcdprint("Communicator");
-    lcdsetCursor(7,2);
-    lcdprint("V"+String(swversion));
+    u8g2.setCursor(3,0);
+    u8g2.print("Solar Inverter");
+    u8g2.setCursor(4,1);
+    u8g2.print("Communicator");
+    u8g2.setCursor(7,2);
+    u8g2.print("V"+String(swversion));
     }
   */  
-  delay(2000);
+  
   
   lcd.begin();
   lcd.bootscreen( "PV Inverter Commnuicator", swversion);
@@ -81,13 +85,38 @@ void setup()
   
   pinMode(heartbeat_led, OUTPUT); //set up internal hearbeat led
   digitalWrite(heartbeat_led, LOW);
+  delay(3000);
+
+  u8g2.begin();
+
+    // serial init; only be needed if serial control is used
+   // Serial.begin(9600);                // start serial
+   // Serial.println(F(_LCDML_VERSION)); // only for examples
+
+    // LCDMenuLib Setup
+    LCDML_setup(_LCDML_DISP_cnt);
+
+    // Enable Menu Rollover
+    LCDML.MENU_enRollover();
+
+    // Enable Screensaver (screensaver menu function, time to activate in ms)
+    //LCDML.SCREEN_enable(mFunc_screensaver, 1800000); // set to 1800 seconds
+    LCDML.SCREEN_disable();
+
+    // Some needful methods
+
+    // You can jump to a menu function from anywhere with
+    //LCDML.OTHER_jumpToFunc(mFunc_p2); // the parameter is the function name
+
 }
 
 // ******************************************  Loop  ******************************************
 void loop() {
-  error_code = 0;
-  inverter.ESPyield();
   
+  inverter.ESPyield();
+  LCDML.loop();
+  
+
   /*
    error_code = inverter.ask_data(millis());
   if (error_code != 0)                 
@@ -95,15 +124,16 @@ void loop() {
     Serial.println("-- ERROR: INVERTER: Error executing 'ask_inverter_data' function! Error code:" + String(error_code));        
   }
   */
- 
+ /*
   String result="";
   error_code = inverter.receive(inverter.QPIGS, result );
   if (error_code == 0 ) 
     {
     
     inverter.store_QPIGS( result.c_str() , 0 );
-    inverter.console_data(inverter.QPIGS_values);
-    lcd.QPIGS();
+    //inverter.console_data(inverter.QPIGS_values);
+    //lcd.QPIGS();
+    */
   /*
   Serial.println("DevStatus.SBUpriority:............. " + String(inverter.DevStatus.SBUpriority));
   Serial.println("DevStatus.ConfigStatus:............ " + String(inverter.DevStatus.ConfigStatus));
@@ -121,7 +151,7 @@ void loop() {
   Serial.println("DevStatus.changingFloatMode:......... " + String(inverter.DevStatus.changingFloatMode));
           }
      */
-    }
+  //  }
   if (inverter.DevStatus.SCCcharge)
     {
       digitalWrite(heartbeat_led, HIGH);
@@ -131,15 +161,11 @@ void loop() {
       digitalWrite(heartbeat_led, LOW);
     }
 
-  Serial.println();
-  Serial.println();
+ // Serial.println();
+ // Serial.println();
   
   inverter.ESPyield();     // add yield(); to code if platform is ESP32 or ESP8266
-delay(5000);
-
-
-
-
+  
 
 
   //invereter_receive();

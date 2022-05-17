@@ -290,6 +290,7 @@ void lcdml_menu_control(void)
 
   //#define ENCODER_OPTIMIZE_INTERRUPTS //Only when using pin2/3 (or 20/21 on mega)
   #define ENCODER_DO_NOT_USE_INTERRUPTS
+  //#define ENCODER_USE_INTERRUPTS
   #include <Encoder.h> //for Encoder    Download:  https://github.com/PaulStoffregen/Encoder
 
   Encoder ENCODER(encoder_A_pin, encoder_B_pin);

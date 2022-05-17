@@ -7,13 +7,17 @@
 
   #include <PVinverter.h>
   #include <U8g2lib.h>
-
+  
   #ifdef U8X8_HAVE_HW_SPI
     #include <SPI.h>
   #endif
+  #ifdef U8X8_HAVE_HW_I2C
+    #include <Wire.h>
+  #endif
 
 
-extern struct DevStatus_t DevStatus;
+//extern struct PV_INVERTER::DevStatus DevStatus;
+//extern PV_INVERTER::DevStatus;
 
 
 class PVinverterLCD

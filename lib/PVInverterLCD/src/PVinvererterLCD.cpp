@@ -3,8 +3,7 @@
 // #include "../../PVinverter/src/PVinverter.h">
 
 
-
-U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
+U8G2_ST7920_128X64_F_SW_SPI u82gLCD(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
 
   // settings for u8g lib and LCD
   #define _INVLCD_DISP_w                 128            // LCD width
@@ -44,52 +43,52 @@ PVinverterLCD::PVinverterLCD (int _clock, int _data, int _CS, int _reset ) {
                     //U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R0, /* CS=*/ 53, /* reset=*/ U8X8_PIN_NONE);     // (MEGA, ...
                     //U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R0, /* CS=*/ 12, /* reset=*/ U8X8_PIN_NONE);   // (Uno and co
                     //U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
-                    U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ _clock, /* data= /R/w */ _data, /* CS=*/ _CS, /* reset= */ _reset );  // ESP32
+                    U8G2_ST7920_128X64_F_SW_SPI u82gLCD(U8G2_R0, /* clock=*/ _clock, /* data= /R/w */ _data, /* CS=*/ _CS, /* reset= */ _reset );  // ESP32
           }
 
 void PVinverterLCD::begin()
 {
-u8g2.begin();
-u8g2.clearBuffer();					// clear the internal memory
-u8g2.clear();
-u8g2.setFont(_INVLCD_DISP_font);	// choose a suitable font
+u82gLCD.begin();
+u82gLCD.clearBuffer();					// clear the internal memory
+u82gLCD.clear();
+u82gLCD.setFont(_INVLCD_DISP_font);	// choose a suitable font
 
 }
 
 void PVinverterLCD::bootscreen(const char *_msg1, const char *_msg2 )
 {
-  u8g2.clearBuffer();					// clear the internal memory
+  u82gLCD.clearBuffer();					// clear the internal memory
    if(_INVLCD_DISP_draw_frame == 1) {
-       u8g2.drawFrame(_INVLCD_DISP_box_x0, _INVLCD_DISP_box_y0, (_INVLCD_DISP_box_x1-_INVLCD_DISP_box_x0), (_INVLCD_DISP_box_y1-_INVLCD_DISP_box_y0));
+       u82gLCD.drawFrame(_INVLCD_DISP_box_x0, _INVLCD_DISP_box_y0, (_INVLCD_DISP_box_x1-_INVLCD_DISP_box_x0), (_INVLCD_DISP_box_y1-_INVLCD_DISP_box_y0));
     }
   
-  u8g2.setFont(_INVLCD_DISP_font);
-   u8g2.setCursor(_INVLCD_DISP_box_x1/2-u8g2.getStrWidth(_msg1)/2, (_INVLCD_DISP_box_y1 / 2) -10 );
-   u8g2.print(_msg1);
-  //u8g2.drawStr(0,10, _msg1 );
+  u82gLCD.setFont(_INVLCD_DISP_font);
+   u82gLCD.setCursor(_INVLCD_DISP_box_x1/2-u82gLCD.getStrWidth(_msg1)/2, (_INVLCD_DISP_box_y1 / 2) -10 );
+   u82gLCD.print(_msg1);
+  //u82gLCD.drawStr(0,10, _msg1 );
   if (strlen(_msg2)>0)
     {
-    u8g2.setCursor(_INVLCD_DISP_box_x1/2-u8g2.getStrWidth(_msg2)/2, (_INVLCD_DISP_box_y1 / 2)+10);
-    u8g2.print(_msg2);
-    //u8g2.drawStr(0,20, _msg2 );
+    u82gLCD.setCursor(_INVLCD_DISP_box_x1/2-u82gLCD.getStrWidth(_msg2)/2, (_INVLCD_DISP_box_y1 / 2)+10);
+    u82gLCD.print(_msg2);
+    //u82gLCD.drawStr(0,20, _msg2 );
     }
-  u8g2.sendBuffer();					// transfer internal memory to the display
+  u82gLCD.sendBuffer();					// transfer internal memory to the display
 }
 
 void PVinverterLCD::QPIGS()
 {
   if(_INVLCD_DISP_draw_frame == 1) {
-       u8g2.drawFrame(_INVLCD_DISP_box_x0, _INVLCD_DISP_box_y0, (_INVLCD_DISP_box_x1-_INVLCD_DISP_box_x0), (_INVLCD_DISP_box_y1-_INVLCD_DISP_box_y0));
+       u82gLCD.drawFrame(_INVLCD_DISP_box_x0, _INVLCD_DISP_box_y0, (_INVLCD_DISP_box_x1-_INVLCD_DISP_box_x0), (_INVLCD_DISP_box_y1-_INVLCD_DISP_box_y0));
     }
   //PV_inverter->devsatus.ACcharge
-  u8g2.setFont(_INVLCD_DISP_font);
-  bool a = DevStatus.SCCcharge;
-  u8g2.drawStr(0,10,(const char*)a);
+  u82gLCD.setFont(_INVLCD_DISP_font);
+  //bool a = PV_INVERTER::DevStatus.SCCcharge;
+  //u82gLCD.drawStr(0,10,(const char*)a);
 
-  //u8g2.drawString(0,0,"Line 0");
-  //u8g2.drawString(0,8,"Line 8");
-  //u8g2.drawString(0,9,"Line 9");
-  //u8g2.refreshDisplay();		// only required for SSD1606/7  
+  //u82gLCD.drawString(0,0,"Line 0");
+  //u82gLCD.drawString(0,8,"Line 8");
+  //u82gLCD.drawString(0,9,"Line 9");
+  //u82gLCD.refreshDisplay();		// only required for SSD1606/7  
   //delay(2000);
-  u8g2.sendBuffer();					// transfer internal memory to the display
+  u82gLCD.sendBuffer();					// transfer internal memory to the display
 }
