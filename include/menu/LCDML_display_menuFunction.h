@@ -416,6 +416,20 @@ boolean COND_hide()  // hide a menu element
   return false;  // hidden
 }
 
+/*
+char sripright( float x )
+{
+ if (x.length() > 0 )
+  {
+  int lastIndex = x.length() - 1;
+  a.remove(lastIndex);
+  //char a = x.c_str();
+  return a;
+  }
+
+return false;
+}
+*/
 
 void inverter_LCD_QPIGS_base()
 {
@@ -447,10 +461,13 @@ void inverter_LCD_QPIGS_base()
   u8g2.drawStr((_LCDML_DISP_font_w * 18),(_LCDML_DISP_font_h * 4),"%");  // Inverter load in %  
   }
 
+char StrBuffer;
+
 void inverter_LCD_QPIGS_data()
 {
   //int col = floor(_LCDML_DISP_cols_max / _LCDML_DISP_font_w) ;
   int col = _LCDML_DISP_font_w ;
+  
 Serial.println(col);
   //u8g2.drawStr((_LCDML_DISP_font_w * 2), (_LCDML_DISP_font_h * 1),"UNIX TIME:................ " + String(inverter.QPIGS_values..unixtime) + " Epoch");
 
@@ -465,33 +482,39 @@ Serial.println(col);
   u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 2 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // acActivePower
   u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // loadPercent
 
-  u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryVoltage/100.00
-  u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryChargeCurrent
+  u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryVoltage/100.00
+  u8g2.drawBox((_LCDML_DISP_font_w * 7 ), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryChargeCurrent
   u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryCharge
+
+  u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // PVVoltage
+  u8g2.drawBox((_LCDML_DISP_font_w * 7 ), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // PVCurrent
+  u8g2.drawBox((_LCDML_DISP_font_w * 12), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // PVPower 
 
   u8g2.setDrawColor(1);
   
-  u8g2.drawStr((_LCDML_DISP_font_w * 3), (_LCDML_DISP_font_h * 1), String(inverter.QPIGS_values.gridVoltage).c_str());  // gridVoltage
-  u8g2.drawStr((_LCDML_DISP_font_w * 6), (_LCDML_DISP_font_h * 1), String((inverter.QPIGS_values.gridFrequency/10.0)).c_str());  // gridFrequency/10.0
-  u8g2.drawStr((_LCDML_DISP_font_w * 3), (_LCDML_DISP_font_h * 2), String(inverter.QPIGS_values.acOutput).c_str());  // acOutput
-  u8g2.drawStr((_LCDML_DISP_font_w * 6), (_LCDML_DISP_font_h * 2), String(inverter.QPIGS_values.acFrequency/10.0).c_str());  // acFrequency/10.0
-  u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 1), String(inverter.QPIGS_values.acApparentPower).c_str());  // acApparentPower
-  u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 2), String(inverter.QPIGS_values.acActivePower).c_str());    // acActivePower
-  u8g2.drawStr((_LCDML_DISP_font_w * 17), (_LCDML_DISP_font_h * 4), String(inverter.QPIGS_values.loadPercent).c_str());      // loadPercent
+  dtostrf(inverter.QPIGS_values.gridVoltage,        4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 1), &StrBuffer ); // gridVoltage
+  dtostrf(inverter.QPIGS_values.gridFrequency/10.0, 4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 1), &StrBuffer ); // gridFrequency/10.0
+  dtostrf(inverter.QPIGS_values.acOutput,           4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acOutput
+  dtostrf(inverter.QPIGS_values.acFrequency/10.0,   4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acFrequency/10.0
+  dtostrf(inverter.QPIGS_values.acApparentPower,    4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 1), &StrBuffer ); // acApparentPower
+  dtostrf(inverter.QPIGS_values.acActivePower,      4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acActivePower
+  dtostrf(inverter.QPIGS_values.loadPercent,        4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 17), (_LCDML_DISP_font_h * 4), &StrBuffer ); // loadPercent
+
   /*
-  u8g2.drawStr(2, (_LCDML_DISP_font_h * 8),("Bus Voltage:.............. " + String(inverter.QPIGS_values.busVoltage) + " V").c_str()); 
+  dtostrf(inverter.QPIGS_values.busVoltage/100.00,6,2, &StrBuffer);
+  u8g2.drawStr(2, (_LCDML_DISP_font_h * 8), (_LCDML_DISP_font_h * 4), &StrBuffer); 
   */
-  u8g2.drawStr((_LCDML_DISP_font_w * 3), (_LCDML_DISP_font_h * 3), String(inverter.QPIGS_values.batteryVoltage/100.00).c_str());
-  u8g2.drawStr((_LCDML_DISP_font_w * 8), (_LCDML_DISP_font_h * 3), String(inverter.QPIGS_values.batteryChargeCurrent).c_str()); 
-  u8g2.drawStr((_LCDML_DISP_font_w * 12), (_LCDML_DISP_font_h * 3), String(inverter.QPIGS_values.batteryCharge).c_str()); 
+  dtostrf(inverter.QPIGS_values.batteryVoltage/100.00,       6, 2, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 2.5 ), (_LCDML_DISP_font_h * 3), &StrBuffer ); // batteryVoltage
+  dtostrf(inverter.QPIGS_values.batteryChargeCurrent/100.00, 6, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 7 ), (_LCDML_DISP_font_h * 3), &StrBuffer ); // batteryChargeCurrent
+  dtostrf(inverter.QPIGS_values.batteryCharge,               3, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 12), (_LCDML_DISP_font_h * 3), &StrBuffer ); // batteryCharge
 
   /*
   u8g2.drawStr(2, (_LCDML_DISP_font_h * 1),"PV_INVERTER Temperature:.. " + String(inverter.QPIGS_values.inverterTemperature /10.0) + " °C"); 
   */
 
-  u8g2.drawStr((_LCDML_DISP_font_w * 3), (_LCDML_DISP_font_h * 4),String(inverter.QPIGS_values.PVVoltage /10.0).c_str() ); 
-  u8g2.drawStr((_LCDML_DISP_font_w * 8), (_LCDML_DISP_font_h * 4),String(inverter.QPIGS_values.PVCurrent /10.0).c_str());
-  u8g2.drawStr((_LCDML_DISP_font_w * 12), (_LCDML_DISP_font_h * 4),String(inverter.QPIGS_values.PVPower   /100.0).c_str());  
+  dtostrf(inverter.QPIGS_values.PVVoltage/10, 5, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 4), &StrBuffer ); // PVVoltage
+  dtostrf(inverter.QPIGS_values.PVCurrent/10, 6, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 7 ), (_LCDML_DISP_font_h * 4), &StrBuffer ); // PVCurrent
+  dtostrf(inverter.QPIGS_values.PVPower/100,  5, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 12), (_LCDML_DISP_font_h * 4), &StrBuffer ); // PVPower 
   /*
   u8g2.drawStr(2, (_LCDML_DISP_font_h * 1),"Battery SCC:.............. " + String(inverter.QPIGS_values.batterySCC/100.00) + " V"); 
   */
