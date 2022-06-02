@@ -484,7 +484,7 @@ Serial.println(col);
   dtostrf(inverter.QPIGS_values.acFrequency/10.0,   4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acFrequency/10.0
   dtostrf(inverter.QPIGS_values.acApparentPower,    4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 1), &StrBuffer ); // acApparentPower
   dtostrf(inverter.QPIGS_values.acActivePower,      4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acActivePower
-  dtostrf(inverter.QPIGS_values.loadPercent,        4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 17), (_LCDML_DISP_font_h * 4), &StrBuffer ); // loadPercent
+  dtostrf(inverter.QPIGS_values.loadPercent,        3, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 16), (_LCDML_DISP_font_h * 4), &StrBuffer ); // loadPercent
 
   /*
   dtostrf(inverter.QPIGS_values.busVoltage/100.00,6,2, &StrBuffer);
