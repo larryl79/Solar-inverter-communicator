@@ -34,4 +34,6 @@ My Mpp Solar device: PS-300VA-24V (PowMr)
 https://sunrayups.en.made-in-china.com/product/vSFmfUxjZNpc/China-New-Model-2400W-230VAC-24VDC-PWM-50A-High-Frequency-Pure-Sine-Wave-off-Grid-Hybrid-Solar-Inverter-HPS-3K-.html
 
 
+Brother Poject based on same lib: https://github.com/ninguemrj/Inverter-Communicator
+
 Contribuitors, Developers are welcome
