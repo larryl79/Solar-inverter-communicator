@@ -460,13 +460,13 @@ Serial.println(col);
   
   u8g2.setDrawColor(0);
   
-  u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 1 - _LCDML_DISP_font_h ), 10, _LCDML_DISP_font_h );  // gridVoltage
+  u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 1 - _LCDML_DISP_font_h ), 11, _LCDML_DISP_font_h );  // gridVoltage
   u8g2.drawBox((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 1 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // gridFrequency/10.0
-  u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 2 - _LCDML_DISP_font_h ), 10, _LCDML_DISP_font_h );  // acOutput
+  u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 2 - _LCDML_DISP_font_h ), 11, _LCDML_DISP_font_h );  // acOutput
   u8g2.drawBox((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 2 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // acFrequency/10.0
   u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 1 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // acApparentPower
   u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 2 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // acActivePower
-  u8g2.drawBox((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // loadPercent
+  u8g2.drawBox((_LCDML_DISP_font_w * 15), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // loadPercent
 
   u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryVoltage/100.00
   u8g2.drawBox((_LCDML_DISP_font_w * 7 ), (_LCDML_DISP_font_h * 3 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // batteryChargeCurrent
@@ -475,13 +475,14 @@ Serial.println(col);
   u8g2.drawBox((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // PVVoltage
   u8g2.drawBox((_LCDML_DISP_font_w * 7 ), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // PVCurrent
   u8g2.drawBox((_LCDML_DISP_font_w * 12), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // PVPower 
+  // u8g2.drawBox((_LCDML_DISP_font_w * 15), (_LCDML_DISP_font_h * 4 - _LCDML_DISP_font_h ), 18, _LCDML_DISP_font_h );  // loadpercent
 
   u8g2.setDrawColor(1);
   
-  dtostrf(inverter.QPIGS_values.gridVoltage,        4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 1), &StrBuffer ); // gridVoltage
-  dtostrf(inverter.QPIGS_values.gridFrequency/10.0, 4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 1), &StrBuffer ); // gridFrequency/10.0
-  dtostrf(inverter.QPIGS_values.acOutput,           4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 3 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acOutput
-  dtostrf(inverter.QPIGS_values.acFrequency/10.0,   4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acFrequency/10.0
+  dtostrf(inverter.QPIGS_values.gridVoltage,        4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 2.9 ), (_LCDML_DISP_font_h * 1), &StrBuffer ); // gridVoltage
+  dtostrf(inverter.QPIGS_values.gridFrequency/10.0, 4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6.5 ), (_LCDML_DISP_font_h * 1), &StrBuffer ); // gridFrequency/10.0
+  dtostrf(inverter.QPIGS_values.acOutput,           4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 2.9 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acOutput
+  dtostrf(inverter.QPIGS_values.acFrequency/10.0,   4, 1, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 6.5 ), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acFrequency/10.0
   dtostrf(inverter.QPIGS_values.acApparentPower,    4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 1), &StrBuffer ); // acApparentPower
   dtostrf(inverter.QPIGS_values.acActivePower,      4, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 11), (_LCDML_DISP_font_h * 2), &StrBuffer ); // acActivePower
   dtostrf(inverter.QPIGS_values.loadPercent,        3, 0, &StrBuffer ); u8g2.drawStr((_LCDML_DISP_font_w * 16), (_LCDML_DISP_font_h * 4), &StrBuffer ); // loadPercent
