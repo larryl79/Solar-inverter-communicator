@@ -11,7 +11,7 @@ SoftwareSerial Serial3(RX_pin, TX_pin);
 #endif
 
 #ifdef ESP32 
-#define heartbeat_led 2     // hearbeat led pin for ESP32-CAM  4 flashlight / internal led 33   esp32 led 2
+#define heartbeat_led 2     // heartbeat led pin for ESP32-CAM  4 flashlight / internal led 33   esp32 led 2
 #define I2C_SDA 21          // ESP32 I2c pin        ESP32-CAM 2
 #define I2C_SCL 22          // ESP32 I2c pin        ESP32-CAM 14
 
@@ -311,7 +311,7 @@ void inverter_send(String inv_command)
   int yy;
 
   vRequestLen = inv_command.length();
-  char vRequestArray[vRequestLen]; //Arrary define
+  char vRequestArray[vRequestLen]; //Array define
   inv_command.toCharArray(vRequestArray, vRequestLen + 1);
   
   //Calculating CRC

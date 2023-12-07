@@ -22,7 +22,7 @@
  
 #include "SQLite_inverter.h"
 
-////////// Date and time function for error mesages //////////
+////////// Date and time function for error messages //////////
 extern String _errorDateTime();
 
 

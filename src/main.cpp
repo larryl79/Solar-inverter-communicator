@@ -10,7 +10,7 @@
   SoftwareSerial Serial3(RX_pin, TX_pin);
 #endif
 
-#define heartbeat_led 2     // hearbeat led pin for ESP32-CAM  4 flashlight / internal led 33   esp32 led 2
+#define heartbeat_led 2     // heartbeat led pin for ESP32-CAM  4 flashlight / internal led 33   esp32 led 2
 
 #include <PVinverterLCD.h>
 //U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33, /* CS=*/ 32, /* reset= */ U8X8_PIN_NONE );  // ESP32
@@ -83,7 +83,7 @@ void setup()
   lcd.bootscreen( "PV Inverter Commnuicator", swversion);
   // lcd.QPIGS();
   
-  pinMode(heartbeat_led, OUTPUT); //set up internal hearbeat led
+  pinMode(heartbeat_led, OUTPUT); //set up internal heartbeat led
   digitalWrite(heartbeat_led, LOW);
   delay(3000);
 

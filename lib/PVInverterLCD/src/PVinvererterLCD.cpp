@@ -20,7 +20,7 @@ U8G2_ST7920_128X64_F_SW_SPI u82gLCD(U8G2_R0, /* clock=*/ 25, /* data= /R/w */ 33
   #define _INVLCD_DISP_box_x0            0              // start point (x0, y0)
   #define _INVLCD_DISP_box_y0            0              // start point (x0, y0)
   #define _INVLCD_DISP_box_x1            128            // width x  (x0 + width)
-  #define _INVLCD_DISP_box_y1            64             // hight y  (y0 + height)
+  #define _INVLCD_DISP_box_y1            64             // height y  (y0 + height)
   #define _INVLCD_DISP_draw_frame        1              // draw a box around the menu
    // scrollbar width
   #define _INVLCD_DISP_scrollbar_w       6  // scrollbar width (if this value is < 3, the scrollbar is disabled)
