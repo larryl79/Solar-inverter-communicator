@@ -1,6 +1,6 @@
 #include "webserver_inverter.h"
 
-////////// Date and time function for error mesages //////////
+////////// Date and time function for error messages //////////
 extern String _errorDateTime();
 
 
@@ -19,7 +19,7 @@ void WEBSERVER_INVERTER::begin(String _ssid, String _password, PV_INVERTER::pipV
         delay(100);
         Serial.print(".");
       }
-      Serial.println(" CONECTED !");
+      Serial.println(" CONNECTED !");
     
       //--- Print ESP32 Local IP Address  ------------
       Serial.println(WiFi.localIP());

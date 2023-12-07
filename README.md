@@ -15,16 +15,16 @@ Used modules:
 Code editor: VSCode
 
 Stage: 
-- Establsihed communication with inverter, show basic info values (QPIGS) on LCD 
+- Established communication with inverter, show basic info values (QPIGS) on LCD 
 - LCD menu added, woking either rotary switch, either 3 buttons.
 - reforming code for add next commands to the menu, and print results on LCD, and Serial Console.
 
 Future plans:
-- implemant all query commands
+- implement all query commands
 - implement configuration commands
 - web server
 - inverter logging
-- multiple inverter conncetion
+- multiple inverter connection
 
 Useful materials:
 - Documents folder
@@ -34,6 +34,6 @@ My Mpp Solar device: PS-300VA-24V (PowMr)
 https://sunrayups.en.made-in-china.com/product/vSFmfUxjZNpc/China-New-Model-2400W-230VAC-24VDC-PWM-50A-High-Frequency-Pure-Sine-Wave-off-Grid-Hybrid-Solar-Inverter-HPS-3K-.html
 
 
-Brother Poject based on same lib: https://github.com/ninguemrj/Inverter-Communicator
+Brother Project based on same lib: https://github.com/ninguemrj/Inverter-Communicator
 
 Contribuitors, Developers are welcome

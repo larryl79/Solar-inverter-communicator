@@ -95,7 +95,7 @@ class PV_INVERTER
       uint16_t batOffsetFan;            // Battery voltage offset for fans on  (2 numbers)
       uint16_t eepromVers;              // EEPROM version (2 numbers)
       unsigned long int PV1_chargPower; // PV1 Charging power (5 numbers)
-      char deviceStatus2[4];            // Devide status 2
+      char deviceStatus2[4];            // Device status 2
       uint32_t bat_backToUtilityVolts;  // Setup voltage to stop using battery and back to GRID power
       uint32_t bat_bulkChargeVolts;     // Setup voltage to 1st (elevation) and 2nd (Absorption) battery charge stages
       uint32_t bat_FloatChargeVolts;    // Setup voltage to 3rd (Floating) battery charge stage
@@ -246,21 +246,21 @@ class PV_INVERTER
                                                                             // _verbose_begin: 0 = none  / 1 = Debug 
     void ESPyield();  // add yield(); command to code if platform is ESP32 or ESP8266
     int  getProtocol();                      // get protocol number
-    void setProtocol(int _protocol_no);      // set protocol number  (ovverides PV_INVERTER::begin) //0 no CRC add, 1 HPS, 2 MAX
+    void setProtocol(int _protocol_no);      // set protocol number  (overrides PV_INVERTER::begin) //0 no CRC add, 1 HPS, 2 MAX
     bool GeDevStatustACcharge();
     
     void console_data(pipVals_t _thisPIP);
     int  handle_automation(int _hour, int _min,  bool _CRChardcoded = false);
     int  ask_data(uint32_t _now,  bool _CRChardcoded = false);
 
-    //later tese will be private functions. We leave it public for testing only.
+    //later these will be private functions. We leave it public for testing only.
     void store_QPIRI(String value);
     void store_QPIGS(String value, uint32_t _now);
     void clear_pipvals (pipVals_t &_thisPIP);
     void smoothing_QPIGS();
     bool rap();
     char read(char _cmd);
-    int receive( String cmd, String& str_return,  bool _CRChardcoded = false ); // 0 = successfull
+    int receive( String cmd, String& str_return,  bool _CRChardcoded = false ); // 0 = successful
                                                             // 1 = No serial communication
                                                             // 2 = Not recognized command                                                        
     int send ( String inv_command, bool _CRChardcoded = false );       // 0 = serial communication up and running

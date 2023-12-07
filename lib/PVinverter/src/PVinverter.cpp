@@ -131,7 +131,7 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         
         //--- Now split the packet into the values ------------------------------------
         val = strtok((char *) pipInputBuf, " "); // get the first value
-       if (atof(val + 1) >10)   // aviod false value stored, because it shows 2-3V even if grid isn't connected.
+       if (atof(val + 1) >10)   // avoid false value stored, because it shows 2-3V even if grid isn't connected.
          {
             QPIGS_values.gridVoltage = atoi(val + 1);  // Skip the initial '('
          }
@@ -235,13 +235,13 @@ void PV_INVERTER::store_QPIGS(String value, uint32_t _now)
         
           val = strtok(0, " "); // Get the next value
           /*
-          strcpy(ds_temp, String(val).substring(0,3).c_str());  // unnecessary conversion to sting and back to char...
+          strcpy(ds_temp, String(val).substring(0,3).c_str());  // unnecessary conversion to string and back to char...
           QPIGS_values.deviceStatus2[0] = (int)ds_temp[0]-'0'; 
           QPIGS_values.deviceStatus2[1] = (int)ds_temp[1]-'0'; 
           QPIGS_values.deviceStatus2[2] = (int)ds_temp[2]-'0';
           */
-          byte lenght = strlen(val);
-          val[lenght - 1] = '\0';  // replace last caharacter whit NULL
+          byte length = strlen(val);
+          val[length - 1] = '\0';  // replace last character whit NULL
           strcpy(QPIGS_values.deviceStatus2, val);
           for ( int i = 0; i < 3; i++ )
             {
@@ -266,7 +266,7 @@ void PV_INVERTER::smoothing_QPIGS()
   else
   {
     // Accumulaets readings on temp structure
-    _QPIGS_tempAverage.unixtime                 =  QPIGS_values.unixtime;         // take the lastest read string only
+    _QPIGS_tempAverage.unixtime                 =  QPIGS_values.unixtime;         // take the latest read string only
     _QPIGS_tempAverage.gridVoltage              += QPIGS_values.gridVoltage;
     _QPIGS_tempAverage.gridFrequency            += QPIGS_values.gridFrequency;
     _QPIGS_tempAverage.acOutput                 += QPIGS_values.acOutput;
@@ -284,20 +284,20 @@ void PV_INVERTER::smoothing_QPIGS()
     _QPIGS_tempAverage.PVPower                  += QPIGS_values.PVPower;
     _QPIGS_tempAverage.batterySCC               += QPIGS_values.batterySCC;
     _QPIGS_tempAverage.batteryDischargeCurrent  += QPIGS_values.batteryDischargeCurrent;
-    for(int i=0; i<8; i++)  _QPIGS_tempAverage.deviceStatus[i]=QPIGS_values.deviceStatus[i];  // take the lastest read string only
+    for(int i=0; i<8; i++)  _QPIGS_tempAverage.deviceStatus[i]=QPIGS_values.deviceStatus[i];  // take the latest read string only
     
     if ( _inverter_protocol == 2)   // 2 = 22 fields from QPIGS
     {
       _QPIGS_tempAverage.PV1_chargPower         += QPIGS_values.PV1_chargPower;
-      _QPIGS_tempAverage.batOffsetFan           = QPIGS_values.batOffsetFan;       // take the lastest read string only
-      _QPIGS_tempAverage.eepromVers             = QPIGS_values.eepromVers;         // take the lastest read string only
-      for(int i=0; i<3; i++)  _QPIGS_tempAverage.deviceStatus2[i]=QPIGS_values.deviceStatus2[i];  // take the lastest read string only
+      _QPIGS_tempAverage.batOffsetFan           = QPIGS_values.batOffsetFan;       // take the latest read string only
+      _QPIGS_tempAverage.eepromVers             = QPIGS_values.eepromVers;         // take the latest read string only
+      for(int i=0; i<3; i++)  _QPIGS_tempAverage.deviceStatus2[i]=QPIGS_values.deviceStatus2[i];  // take the latest read string only
     }
 
     //--- when _average_count = 9: calculate average amounts to update QPIGS_average structure ---------------
     if(_average_count == 9)
     {
-        QPIGS_average.unixtime                = _QPIGS_tempAverage.unixtime;         // take the lastest read string only
+        QPIGS_average.unixtime                = _QPIGS_tempAverage.unixtime;         // take the latest read string only
         QPIGS_average.gridVoltage             = _QPIGS_tempAverage.gridVoltage/10;
         QPIGS_average.gridFrequency           = _QPIGS_tempAverage.gridFrequency/10 ;
         QPIGS_average.acOutput                = _QPIGS_tempAverage.acOutput/10;
@@ -315,16 +315,16 @@ void PV_INVERTER::smoothing_QPIGS()
         QPIGS_average.PVPower                 = _QPIGS_tempAverage.PVPower/10;
         QPIGS_average.batterySCC              = _QPIGS_tempAverage.batterySCC /10;
         QPIGS_average.batteryDischargeCurrent = _QPIGS_tempAverage.batteryDischargeCurrent/10;
-        for(int i=0; i<8; i++)  QPIGS_average.deviceStatus[i]=_QPIGS_tempAverage.deviceStatus[i];  // take the lastest read string only
+        for(int i=0; i<8; i++)  QPIGS_average.deviceStatus[i]=_QPIGS_tempAverage.deviceStatus[i];  // take the latest read string only
         if ( _inverter_protocol == 2 )   // 2 = 22 fields from QPIGS
         {
           QPIGS_average.PV1_chargPower          = _QPIGS_tempAverage.PV1_chargPower/10;
-          QPIGS_average.batOffsetFan            = _QPIGS_tempAverage.batOffsetFan;  // take the lastest read string
-          QPIGS_average.eepromVers              = _QPIGS_tempAverage.eepromVers;    // take the lastest read string
-          for(int i=0; i<3; i++)  _QPIGS_tempAverage.deviceStatus2[i]=QPIGS_average.deviceStatus2[i];  // take the lastest read string only
+          QPIGS_average.batOffsetFan            = _QPIGS_tempAverage.batOffsetFan;  // take the latest read string
+          QPIGS_average.eepromVers              = _QPIGS_tempAverage.eepromVers;    // take the latest read string
+          for(int i=0; i<3; i++)  _QPIGS_tempAverage.deviceStatus2[i]=QPIGS_average.deviceStatus2[i];  // take the latest read string only
         }
 
-        //--- RESETs the _QPIGS_tempAverage values to not accummulate the next 10 readings with previous ones ----
+        //--- RESETs the _QPIGS_tempAverage values to not accumulate the next 10 readings with previous ones ----
         this->clear_pipvals(_QPIGS_tempAverage);
 
         //--- RESETs average counting -----------------------------------------------------
@@ -332,7 +332,7 @@ void PV_INVERTER::smoothing_QPIGS()
     }
     else
     {
-      //--- Prepare counting for next array posotion -------------------------------
+      //--- Prepare counting for next array position -------------------------------
       _average_count++;
     }
   }
@@ -501,7 +501,7 @@ String PV_INVERTER::addCRC(String _cmd)
       int _CRC2;
      
       _vInvCommandLen = _cmd.length();
-      char _vInvCommandArray[_vInvCommandLen]; //Arrary define
+      char _vInvCommandArray[_vInvCommandLen]; //Array define
 
       _cmd.toCharArray(_vInvCommandArray, _vInvCommandLen + 1);
   
@@ -561,7 +561,7 @@ int PV_INVERTER::send(String _inv_command, bool _CRChardcoded)
     if (!_CRChardcoded)
       {
         //this->debugMsg("Adding CRC");
-        _inv_command += this->addCRC(_inv_command);   // add CRC sting to the command by protocol number
+        _inv_command += this->addCRC(_inv_command);   // add CRC string to the command by protocol number
       }
     _inv_command += "\x0D";     // add CR
     //Sending Request to PV_INVERTER
@@ -623,12 +623,12 @@ void PV_INVERTER::ask_QPIRI( String &_result, bool _CRChardcoded)
       
       if (_funct_return == 0) 
       {
-        // checking return string lengh for QPIRI command 
+        // checking return string length for QPIRI command 
         if (strlen(_result.c_str()) < 85)       
         {
           Serial.println("PV_INVERTER: QPIRI: Receipt string is not completed, size = |" + String(strlen(_result.c_str())) + "|.  Returned: " + _result);
           _result = "";                                    // clear the string result from PV_INVERTER as it is not complete
-          _funct_return = 1;                              // short string lengh for QPIRI command 
+          _funct_return = 1;                              // short string length for QPIRI command 
         }
       }
   }
@@ -652,12 +652,12 @@ int PV_INVERTER::ask_data(uint32_t _now,  bool _CRChardcoded)
         if (_VERBOSE_MODE == 1)
           Serial.println("PV_INVERTER: QPIGS: Receipt string size = |" + String(strlen(_result.c_str())) + "|.  Returned: " + _result);
         
-        // checking return string lengh for QPIGS command 
+        // checking return string length for QPIGS command 
         if (strlen(_result.c_str()) < 85)       
         {
           Serial.println("PV_INVERTER: QPIGS: Receipt string is not completed, size = |" + String(strlen(_result.c_str())) + "|.  Returned: " + _result);
           _result = "";                                 // clear the string result from PV_INVERTER as it is not complete
-          _funct_return = 1;                            // short string lengh for QPIGS command 
+          _funct_return = 1;                            // short string length for QPIGS command 
         }
 
         this->store_QPIGS(_result.c_str(), _now);               // Updates with direct reading from inverter
